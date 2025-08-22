@@ -63,4 +63,7 @@ type OpcConnectorService interface {
 }
 
 type OpcCommunicatorService interface {
+	CallOPCMethod(ctx context.Context, c *client.Client, objectNodeID, methodNodeID ua.NodeID, inputArgs ...ua.Variant) ([]ua.Variant, error)
+	ReadMachineNodes(sessionID string, machineType string) (map[string]*ua.Variant, error)
+	ReadMachineData(sessionID string) (MachineData, error)
 }

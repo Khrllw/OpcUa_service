@@ -9,12 +9,14 @@ import (
 
 // ConnectionConfig конфигурация подключения OPC UA
 type ConnectionConfig struct {
-	EndpointURL string
-	Certificate string
-	Key         string
-	Policy      string
-	Mode        string
-	Timeout     time.Duration
+	EndpointURL  string
+	Certificate  string
+	Key          string
+	Policy       string
+	Mode         string
+	Timeout      time.Duration
+	Manufacturer string
+	Model        string
 }
 
 // ConnectorStats статистика менеджера подключений
@@ -37,4 +39,7 @@ type ConnectionInfo struct {
 	UseCount  int64
 	IsHealthy bool
 	Mu        sync.RWMutex
+
+	Manufacturer string
+	Model        string
 }

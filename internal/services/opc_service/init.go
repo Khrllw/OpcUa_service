@@ -16,7 +16,7 @@ type OpcService struct {
 func NewOpcService() interfaces.OpcService {
 	certManager := cert_manager.NewCertificateManager()
 	opcConnector := opc_connector.NewOpcConnector(certManager)
-	opcCommunicator := opc_communicator.NewOpcCommunicator()
+	opcCommunicator := opc_communicator.NewOpcCommunicator(opcConnector)
 
 	return OpcService{
 		certManager,

@@ -126,12 +126,14 @@ func (u *ConnectionUsecase) ConnectByCert(request models.ConnectionRequest) (*mo
 
 	// Создаем конфиг
 	config := models.ConnectionConfig{
-		EndpointURL: request.EndpointURL,
-		Certificate: request.Certificate,
-		Key:         request.Key,
-		Policy:      string(policy),
-		Mode:        string(mode),
-		Timeout:     time.Duration(timeout) * time.Second,
+		EndpointURL:  request.EndpointURL,
+		Certificate:  request.Certificate,
+		Key:          request.Key,
+		Policy:       string(policy),
+		Mode:         string(mode),
+		Timeout:      time.Duration(timeout) * time.Second,
+		Manufacturer: "Heidenhain", // <-- берем из конфига
+		Model:        "TNC640",
 	}
 
 	// Получаем или создаем подключение через пул

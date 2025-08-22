@@ -49,7 +49,7 @@ func ProvideRouter(h *Handler, cfg *config.Config, swagCfg *swagger.Config) http
 	// Общая группа для API
 	baseRouter := r.Group("/api/v1")
 
-	// Авторизация
+	// Подключение
 	connectGroup := baseRouter.Group("/connect")
 	connectGroup.POST("/", h.AddConnection)
 	connectGroup.GET("/", h.GetConnectionPool)
@@ -57,9 +57,9 @@ func ProvideRouter(h *Handler, cfg *config.Config, swagCfg *swagger.Config) http
 	connectGroup.POST("/check", h.CheckConnection)
 
 	// Мониторинг
-	//monitoringGroup := baseRouter.Group("/monitoring")
-	//monitoringGroup.GET("/", h.StartMonitoring)
-	//monitoringGroup.POST("/", h.StopMonitoring)
+	poolingGroup := baseRouter.Group("/pooling")
+	poolingGroup.GET("/start", h.StartPooling)
+	poolingGroup.GET("/stop", h.StopPooling)
 
 	return r
 }
