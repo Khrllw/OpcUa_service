@@ -94,16 +94,18 @@ func (oc *OpcConnector) CreateConnection(config models.ConnectionConfig) (*model
 	sessionID := conn.SessionID().(ua.NodeIDNumeric).String()
 
 	info := &models.ConnectionInfo{
-		Conn:      conn,
-		Ctx:       ctx,
-		Cancel:    cancel,
-		SessionID: sessionID,
-		Config:    config,
-		CreatedAt: time.Now(),
-		LastUsed:  time.Now(),
-		IsHealthy: true,
-		UseCount:  1,
-		Mu:        sync.RWMutex{},
+		Conn:         conn,
+		Ctx:          ctx,
+		Cancel:       cancel,
+		SessionID:    sessionID,
+		Config:       config,
+		CreatedAt:    time.Now(),
+		LastUsed:     time.Now(),
+		IsHealthy:    true,
+		UseCount:     1,
+		Mu:           sync.RWMutex{},
+		Manufacturer: config.Manufacturer, // <-- берем из конфига
+		Model:        config.Model,
 	}
 
 	oc.mu.Lock()

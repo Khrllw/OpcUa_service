@@ -6,6 +6,7 @@ import (
 
 type Usecases interface {
 	ConnectionUsecase
+	PoolingUsecase
 }
 
 type ConnectionUsecase interface {
@@ -18,4 +19,9 @@ type ConnectionUsecase interface {
 	GetConnectionStats(sessionID string) (map[string]interface{}, error)
 	GetActiveConnections() []*models.ConnectionInfo
 	CleanupIdleConnections(maxIdleMinutes int) int
+}
+
+type PoolingUsecase interface {
+	StartPooling() error
+	StopPooling()
 }
