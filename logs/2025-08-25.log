@@ -1,0 +1,53 @@
+2025/08/25 12:45:48 [INFO] APPLogging system initialized
+2025/08/25 12:45:49 [INFO] APP[HANDLER] Handler initialized component=GENERAL
+2025/08/25 12:47:34 [INFO] APP[HANDLER] [HTTP] Request started method=POST path=/api/v1/connect/ remote_addr=[::1]:65416
+2025/08/25 12:47:34 [DEBUG] APP[HANDLER] [HTTP] Request details details={"remote_addr":"[::1]:65416","method":"POST","path":"/api/v1/connect/","headers":{"Accept":["*/*"],"Accept-Encoding":["gzip, deflate, br"],"Cache-Control":["no-cache"],"Connection":["keep-alive"],"Content-Length":["356"],"Content-Type":["application/json"],"Postman-Token":["3d65c665-0dd5-4623-8658-2d9cc7187b07"],"Referer":["http://localhost:8080/api/v1/connect"],"User-Agent":["PostmanRuntime/7.45.0"]}}
+2025/08/25 12:47:34 [INFO] APP[HANDLER] Auth attempt authType=certificate username=
+2025/08/25 12:47:54 [INFO] APPLogging system initialized
+2025/08/25 12:47:54 [INFO] APP[HANDLER] Handler initialized component=GENERAL
+2025/08/25 12:48:01 [INFO] APP[HANDLER] [HTTP] Request started method=POST path=/api/v1/connect/ remote_addr=[::1]:65426
+2025/08/25 12:48:01 [DEBUG] APP[HANDLER] [HTTP] Request details details={"remote_addr":"[::1]:65426","method":"POST","path":"/api/v1/connect/","headers":{"Accept":["*/*"],"Accept-Encoding":["gzip, deflate, br"],"Cache-Control":["no-cache"],"Connection":["keep-alive"],"Content-Length":["356"],"Content-Type":["application/json"],"Postman-Token":["249a04e9-c611-473b-affc-afc32c1b4fe6"],"Referer":["http://localhost:8080/api/v1/connect"],"User-Agent":["PostmanRuntime/7.45.0"]}}
+2025/08/25 12:48:01 [INFO] APP[HANDLER] Auth attempt authType=certificate username=
+2025/08/25 12:50:07 [INFO] APPLogging system initialized
+2025/08/25 12:50:07 [INFO] APP[HANDLER] Handler initialized component=GENERAL
+2025/08/25 12:50:14 [INFO] APP[HANDLER] [HTTP] Request started method=POST path=/api/v1/connect/ remote_addr=[::1]:65461
+2025/08/25 12:50:14 [DEBUG] APP[HANDLER] [HTTP] Request details details={"remote_addr":"[::1]:65461","method":"POST","path":"/api/v1/connect/","headers":{"Accept":["*/*"],"Accept-Encoding":["gzip, deflate, br"],"Cache-Control":["no-cache"],"Connection":["keep-alive"],"Content-Length":["356"],"Content-Type":["application/json"],"Postman-Token":["84e600df-2f5c-4850-852f-8826ca423413"],"Referer":["http://localhost:8080/api/v1/connect"],"User-Agent":["PostmanRuntime/7.45.0"]}}
+2025/08/25 12:50:14 [INFO] APP[HANDLER] Auth attempt authType=certificate username=
+2025/08/25 12:50:15 [INFO] APP[HANDLER] [HTTP] Request completed status=200 latency=968.133ms client_ip=::1
+2025/08/25 12:51:04 [INFO] APP[HANDLER] [HTTP] Request started method=GET path=/api/v1/connect/ remote_addr=[::1]:65461
+2025/08/25 12:51:04 [DEBUG] APP[HANDLER] [HTTP] Request details details={"remote_addr":"[::1]:65461","method":"GET","path":"/api/v1/connect/","headers":{"Accept":["*/*"],"Accept-Encoding":["gzip, deflate, br"],"Cache-Control":["no-cache"],"Connection":["keep-alive"],"Postman-Token":["9857152d-04e1-4923-aed9-5f925377db2f"],"Referer":["http://localhost:8080/api/v1/connect"],"User-Agent":["PostmanRuntime/7.45.0"]}}
+2025/08/25 12:51:04 [INFO] APP[HANDLER] [HTTP] Request completed status=200 latency=0s client_ip=::1
+2025/08/25 12:51:56 [INFO] APP[HANDLER] [HTTP] Request started method=DELETE path=/api/v1/connect/ remote_addr=[::1]:65461
+2025/08/25 12:51:56 [DEBUG] APP[HANDLER] [HTTP] Request details details={"remote_addr":"[::1]:65461","method":"DELETE","path":"/api/v1/connect/","headers":{"Accept":["*/*"],"Accept-Encoding":["gzip, deflate, br"],"Cache-Control":["no-cache"],"Connection":["keep-alive"],"Content-Length":["40"],"Content-Type":["application/json"],"Postman-Token":["00914d79-56bf-4739-b884-93a999d04283"],"Referer":["http://localhost:8080/api/v1/connect"],"User-Agent":["PostmanRuntime/7.45.0"]}}
+2025/08/25 12:51:56 [INFO] APP[HANDLER] [HTTP] Request completed status=200 latency=12.407ms client_ip=::1
+2025/08/25 12:52:26 [INFO] APP[HANDLER] [HTTP] Request started method=POST path=/api/v1/connect/ remote_addr=[::1]:65461
+2025/08/25 12:52:26 [DEBUG] APP[HANDLER] [HTTP] Request details details={"remote_addr":"[::1]:65461","method":"POST","path":"/api/v1/connect/","headers":{"Accept":["*/*"],"Accept-Encoding":["gzip, deflate, br"],"Cache-Control":["no-cache"],"Connection":["keep-alive"],"Content-Length":["356"],"Content-Type":["application/json"],"Postman-Token":["2c5038f7-e05c-4b6c-ac00-171587124b8a"],"Referer":["http://localhost:8080/api/v1/connect"],"User-Agent":["PostmanRuntime/7.45.0"]}}
+2025/08/25 12:52:26 [INFO] APP[HANDLER] Auth attempt authType=certificate username=
+2025/08/25 12:52:26 [INFO] APP[HANDLER] [HTTP] Request completed status=200 latency=487.1298ms client_ip=::1
+2025/08/25 12:53:05 [INFO] APP[HANDLER] [HTTP] Request started method=GET path=/api/v1/connect/check remote_addr=[::1]:65461
+2025/08/25 12:53:05 [DEBUG] APP[HANDLER] [HTTP] Request details details={"remote_addr":"[::1]:65461","method":"GET","path":"/api/v1/connect/check","headers":{"Accept":["*/*"],"Accept-Encoding":["gzip, deflate, br"],"Cache-Control":["no-cache"],"Connection":["keep-alive"],"Content-Length":["42"],"Content-Type":["application/json"],"Postman-Token":["d42a16c6-e25d-4651-9802-7605b57666c9"],"User-Agent":["PostmanRuntime/7.45.0"]}}
+2025/08/25 12:53:05 [INFO] APP[HANDLER] [HTTP] Request completed status=404 latency=0s client_ip=::1
+2025/08/25 12:53:26 [INFO] APP[HANDLER] [HTTP] Request started method=GET path=/api/v1/connect/check remote_addr=[::1]:65461
+2025/08/25 12:53:26 [DEBUG] APP[HANDLER] [HTTP] Request details details={"remote_addr":"[::1]:65461","method":"GET","path":"/api/v1/connect/check","headers":{"Accept":["*/*"],"Accept-Encoding":["gzip, deflate, br"],"Cache-Control":["no-cache"],"Connection":["keep-alive"],"Content-Length":["42"],"Content-Type":["application/json"],"Postman-Token":["9f59e30e-b677-4adc-967c-1c3fe3ab87e0"],"User-Agent":["PostmanRuntime/7.45.0"]}}
+2025/08/25 12:53:26 [INFO] APP[HANDLER] [HTTP] Request completed status=404 latency=0s client_ip=::1
+2025/08/25 12:53:42 [INFO] APP[HANDLER] [HTTP] Request started method=GET path=/api/v1/connect/check remote_addr=[::1]:65461
+2025/08/25 12:53:42 [DEBUG] APP[HANDLER] [HTTP] Request details details={"remote_addr":"[::1]:65461","method":"GET","path":"/api/v1/connect/check","headers":{"Accept":["*/*"],"Accept-Encoding":["gzip, deflate, br"],"Cache-Control":["no-cache"],"Connection":["keep-alive"],"Content-Length":["42"],"Content-Type":["application/json"],"Postman-Token":["b97764d0-3224-41c2-b0ed-7522e1bb4eef"],"User-Agent":["PostmanRuntime/7.45.0"]}}
+2025/08/25 12:53:42 [INFO] APP[HANDLER] [HTTP] Request completed status=404 latency=0s client_ip=::1
+2025/08/25 12:54:01 [INFO] APP[HANDLER] [HTTP] Request started method=POST path=/api/v1/connect/check remote_addr=[::1]:65461
+2025/08/25 12:54:01 [DEBUG] APP[HANDLER] [HTTP] Request details details={"remote_addr":"[::1]:65461","method":"POST","path":"/api/v1/connect/check","headers":{"Accept":["*/*"],"Accept-Encoding":["gzip, deflate, br"],"Cache-Control":["no-cache"],"Connection":["keep-alive"],"Content-Length":["42"],"Content-Type":["application/json"],"Postman-Token":["24d869c6-f2cd-4fa0-9b4b-d5b3920e0d20"],"User-Agent":["PostmanRuntime/7.45.0"]}}
+2025/08/25 12:54:01 [INFO] APP[HANDLER] [HTTP] Request completed status=404 latency=0s client_ip=::1
+2025/08/25 12:54:14 [INFO] APP[HANDLER] [HTTP] Request started method=POST path=/api/v1/connect/check remote_addr=[::1]:65461
+2025/08/25 12:54:14 [DEBUG] APP[HANDLER] [HTTP] Request details details={"remote_addr":"[::1]:65461","method":"POST","path":"/api/v1/connect/check","headers":{"Accept":["*/*"],"Accept-Encoding":["gzip, deflate, br"],"Cache-Control":["no-cache"],"Connection":["keep-alive"],"Content-Length":["42"],"Content-Type":["application/json"],"Postman-Token":["72cb2710-d3aa-4a51-8ea1-d9d802c49429"],"User-Agent":["PostmanRuntime/7.45.0"]}}
+2025/08/25 12:54:14 [INFO] APP[HANDLER] [HTTP] Request completed status=200 latency=0s client_ip=::1
+2025/08/25 12:55:01 [INFO] APP[HANDLER] [HTTP] Request started method=GET path=/api/v1/pooling/start remote_addr=[::1]:65461
+2025/08/25 12:55:01 [DEBUG] APP[HANDLER] [HTTP] Request details details={"remote_addr":"[::1]:65461","method":"GET","path":"/api/v1/pooling/start","headers":{"Accept":["*/*"],"Accept-Encoding":["gzip, deflate, br"],"Cache-Control":["no-cache"],"Connection":["keep-alive"],"Content-Length":["42"],"Content-Type":["application/json"],"Postman-Token":["374ad0da-a86b-40e9-b77d-cf11e1894a57"],"User-Agent":["PostmanRuntime/7.45.0"]}}
+2025/08/25 12:55:01 [INFO] APP[HANDLER] [HTTP] Request completed status=200 latency=0s client_ip=::1
+2025/08/25 12:55:12 [INFO] APP[HANDLER] [HTTP] Request started method=GET path=/api/v1/pooling/stop remote_addr=[::1]:65461
+2025/08/25 12:55:12 [DEBUG] APP[HANDLER] [HTTP] Request details details={"remote_addr":"[::1]:65461","method":"GET","path":"/api/v1/pooling/stop","headers":{"Accept":["*/*"],"Accept-Encoding":["gzip, deflate, br"],"Cache-Control":["no-cache"],"Connection":["keep-alive"],"Content-Length":["42"],"Content-Type":["application/json"],"Postman-Token":["bb7fb01f-96a0-4c62-9745-7e0576d71d21"],"User-Agent":["PostmanRuntime/7.45.0"]}}
+2025/08/25 12:55:12 [INFO] APP[HANDLER] [HTTP] Request completed status=200 latency=0s client_ip=::1
+2025/08/25 12:55:53 [INFO] APP[HANDLER] [HTTP] Request started method=GET path=/api/v1/connect/ remote_addr=[::1]:65461
+2025/08/25 12:55:53 [DEBUG] APP[HANDLER] [HTTP] Request details details={"remote_addr":"[::1]:65461","method":"GET","path":"/api/v1/connect/","headers":{"Accept":["*/*"],"Accept-Encoding":["gzip, deflate, br"],"Cache-Control":["no-cache"],"Connection":["keep-alive"],"Postman-Token":["07e89ca2-f02b-4abe-81d7-44c67a7ca9e3"],"Referer":["http://localhost:8080/api/v1/connect"],"User-Agent":["PostmanRuntime/7.45.0"]}}
+2025/08/25 12:55:53 [INFO] APP[HANDLER] [HTTP] Request completed status=200 latency=0s client_ip=::1
+2025/08/25 12:56:00 [INFO] APP[HANDLER] [HTTP] Request started method=DELETE path=/api/v1/connect/ remote_addr=[::1]:65461
+2025/08/25 12:56:00 [DEBUG] APP[HANDLER] [HTTP] Request details details={"remote_addr":"[::1]:65461","method":"DELETE","path":"/api/v1/connect/","headers":{"Accept":["*/*"],"Accept-Encoding":["gzip, deflate, br"],"Cache-Control":["no-cache"],"Connection":["keep-alive"],"Content-Length":["40"],"Content-Type":["application/json"],"Postman-Token":["1e290b8b-fa98-4b9a-88ce-61c97ad2f64b"],"Referer":["http://localhost:8080/api/v1/connect"],"User-Agent":["PostmanRuntime/7.45.0"]}}
+2025/08/25 12:56:00 [INFO] APP[HANDLER] [HTTP] Request completed status=200 latency=6.5488ms client_ip=::1
