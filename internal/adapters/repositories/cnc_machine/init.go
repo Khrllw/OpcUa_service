@@ -2,6 +2,7 @@ package cnc_machine
 
 import (
 	"gorm.io/gorm"
+	_ "opc_ua_service/internal/domain/entities"
 	"opc_ua_service/internal/interfaces"
 )
 

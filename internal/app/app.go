@@ -2,18 +2,19 @@ package app
 
 import (
 	"context"
+	"errors"
 	"go.uber.org/fx"
+	"log"
 	"net/http"
+	_ "opc_ua_service/docs"
 	"opc_ua_service/internal/adapters/handlers"
+	"opc_ua_service/internal/adapters/producers"
 	"opc_ua_service/internal/adapters/repositories"
 	"opc_ua_service/internal/config"
+	"opc_ua_service/internal/interfaces"
 	"opc_ua_service/internal/middleware/logging"
 	"opc_ua_service/internal/middleware/swagger"
-	"opc_ua_service/internal/services/kafka"
 	"opc_ua_service/internal/services/opc_service"
-
-	// "opc_ua_service/internal/middleware/swagger"
-	// "opc_ua_service/internal/services"
 	"opc_ua_service/internal/usecases"
 )
 
@@ -23,8 +24,8 @@ func New() *fx.App {
 			config.LoadConfig,
 		),
 		LoggingModule,
-		KafkaModule,
 		RepositoryModule,
+		ProducerModule,
 		ServiceModule,
 		UsecaseModule,
 		HttpServerModule,
@@ -36,7 +37,7 @@ func ProvideLoggers(cfg *config.Config) *logging.Logger {
 		Enabled:    cfg.Logging.Enable,
 		Level:      cfg.Logging.Level,
 		LogsDir:    cfg.Logging.LogsDir,
-		SavingDays: IntToUint(cfg.Logging.SavingDays),
+		SavingDays: intToUint(cfg.Logging.SavingDays),
 	}
 
 	logger := logging.NewLogger(loggerCfg, "APP", cfg.App.Version)
@@ -52,6 +53,7 @@ var LoggingModule = fx.Module("logging_module",
 	}),
 )
 
+// InvokeHttpServer запускает HTTP-сервер
 func InvokeHttpServer(lc fx.Lifecycle, h http.Handler) {
 	server := &http.Server{
 		Addr:    ":8080",
@@ -60,11 +62,33 @@ func InvokeHttpServer(lc fx.Lifecycle, h http.Handler) {
 
 	lc.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
-			go server.ListenAndServe()
+			go func() {
+				if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+					log.Printf("HTTP server failed: %v", err)
+				}
+			}()
 			return nil
 		},
 		OnStop: func(ctx context.Context) error {
-			return server.Close()
+			log.Println("Shutting down HTTP server...")
+			return server.Shutdown(ctx)
+		},
+	})
+}
+
+// InvokeGracefulShutdown обеспечивает корректное завершение работы сервисов
+func InvokeGracefulShutdown(lc fx.Lifecycle, connector interfaces.OpcService, producer interfaces.DataProducer) {
+	lc.Append(fx.Hook{
+		OnStop: func(ctx context.Context) error {
+			log.Println("Корректное завершение работы сервисов...")
+			connector.CloseAll()
+			//communicator.CloseAll()
+			if err := producer.Close(); err != nil {
+				log.Printf("Ошибка при закрытии Kafka продюсера: %v", err)
+				return err
+			}
+			log.Println("Все сервисы успешно остановлены.")
+			return nil
 		},
 	})
 }
@@ -83,15 +107,15 @@ var HttpServerModule = fx.Module("http_server_module",
 		handlers.NewHandler,
 		handlers.ProvideRouter,
 	),
-	fx.Invoke(InvokeHttpServer),
+	fx.Invoke(InvokeHttpServer, InvokeGracefulShutdown),
+)
+
+var ProducerModule = fx.Module("producer_module",
+	fx.Provide(producers.NewKafkaProducer),
 )
 
 var ServiceModule = fx.Module("service_module",
 	fx.Provide(opc_service.NewOpcService),
-)
-
-var KafkaModule = fx.Module("kafka_module",
-	fx.Provide(kafka.NewKafka),
 )
 
 var RepositoryModule = fx.Module("postgres_module",
@@ -104,8 +128,7 @@ var UsecaseModule = fx.Module("usecases_module",
 	),
 )
 
-// TODO: Может быть вынести в services
-func IntToUint(c int) uint {
+func intToUint(c int) uint {
 	if c < 0 {
 		panic([2]any{"a negative number", c})
 	}

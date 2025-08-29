@@ -1,0 +1,534 @@
+basePath: /api/v1
+definitions:
+  handlers.IncorrectDataError:
+    properties:
+      response:
+        properties:
+          code:
+            example: 401
+            type: integer
+          message:
+            example: Некорректные данные
+            type: string
+        type: object
+      status:
+        description: error
+        example: IncorrectDataError
+        type: string
+    type: object
+  handlers.IncorrectFormatError:
+    properties:
+      response:
+        properties:
+          code:
+            example: 400
+            type: integer
+          message:
+            example: Неверный формат запроса
+            type: string
+        type: object
+      status:
+        description: error
+        example: IncorrectFormatError
+        type: string
+    type: object
+  handlers.InternalServerError:
+    properties:
+      response:
+        properties:
+          code:
+            example: 500
+            type: integer
+          message:
+            example: Внутренняя ошибка сервера
+            type: string
+        type: object
+      status:
+        description: error
+        example: InternalServerError
+        type: string
+    type: object
+  handlers.NotFoundError:
+    properties:
+      response:
+        properties:
+          code:
+            example: 404
+            type: integer
+          message:
+            example: Данные не найдены
+            type: string
+        type: object
+      status:
+        description: error
+        example: NotFoundError
+        type: string
+    type: object
+  models.CheckConnectionRequest:
+    properties:
+      UUID:
+        type: string
+    required:
+    - UUID
+    type: object
+  models.CheckConnectionResponseSwagger:
+    properties:
+      response:
+        properties:
+          data:
+            $ref: '#/definitions/models.ConnectionInfoResponse'
+          message:
+            example: Successfully get connection info
+            type: string
+          type:
+            example: object
+            type: string
+        type: object
+      status:
+        example: ok
+        type: string
+    type: object
+  models.ConnectionConfig:
+    properties:
+      config:
+        description: Type   ConnectionTypeEnum
+    type: object
+  models.ConnectionInfoResponse:
+    properties:
+      UUID:
+        type: string
+      config:
+        $ref: '#/definitions/models.ConnectionConfig'
+      createdAt:
+        example: "2025-08-22T12:00:00Z"
+        type: string
+      description:
+        type: string
+      lastUsed:
+        example: "2025-08-22T12:05:00Z"
+        type: string
+      sessionID:
+        example: ns=3;i=3093118269
+        type: string
+      status:
+        $ref: '#/definitions/models.ConnectionStatusEnum'
+      useCount:
+        example: 1
+        type: integer
+    type: object
+  models.ConnectionPoolResponse:
+    properties:
+      connections:
+        items:
+          $ref: '#/definitions/models.ConnectionInfoResponse'
+        type: array
+      poolSize:
+        type: integer
+    type: object
+  models.ConnectionRequest:
+    properties:
+      certificate:
+        description: для certificate
+        example: cert-abc-123
+        type: string
+      connectionType:
+        allOf:
+        - $ref: '#/definitions/models.ConnectionTypeEnum'
+        example: password
+      endpointURL:
+        example: opc.tcp://KHRLLW_-340595:4840/HEIDENHAIN/NC
+        type: string
+      key:
+        example: secret
+        type: string
+      manufacturer:
+        example: Heidenhain
+        type: string
+      mode:
+        allOf:
+        - $ref: '#/definitions/models.MessageSecurityModeEnum'
+        description: OPC UA MessageSecurityMode
+        example: SignAndEncrypt
+      model:
+        example: TNC640
+        type: string
+      password:
+        description: для password
+        example: secret
+        type: string
+      policy:
+        allOf:
+        - $ref: '#/definitions/models.SecurityPolicyEnum'
+        description: OPC UA SecurityPolicy
+        example: Basic256Sha256
+      timeout:
+        example: 30
+        type: integer
+      username:
+        description: для password
+        example: client1
+        type: string
+    required:
+    - connectionType
+    - manufacturer
+    - model
+    type: object
+  models.ConnectionStatusEnum:
+    enum:
+    - OK
+    - FAIL
+    - NOT FOUND
+    - HEALTHY
+    - UNHEALTHY
+    - CONNECTED
+    - DISCONNECTED
+    - ERROR
+    - TIMEOUT
+    - AUTH_FAILED
+    type: string
+    x-enum-comments:
+      StatusAuthFailed: Ошибка аутентификации
+      StatusConnected: Соединение установлено
+      StatusDisconnected: Соединение разорвано
+      StatusError: Ошибка соединения
+      StatusHealthy: Соединение здорово и работает
+      StatusTimeout: Таймаут соединения
+      StatusUnhealthy: Соединение есть, но есть проблемы
+    x-enum-descriptions:
+    - ""
+    - ""
+    - ""
+    - Соединение здорово и работает
+    - Соединение есть, но есть проблемы
+    - Соединение установлено
+    - Соединение разорвано
+    - Ошибка соединения
+    - Таймаут соединения
+    - Ошибка аутентификации
+    x-enum-varnames:
+    - StatusOK
+    - StatusFail
+    - StatusNotFound
+    - StatusHealthy
+    - StatusUnhealthy
+    - StatusConnected
+    - StatusDisconnected
+    - StatusError
+    - StatusTimeout
+    - StatusAuthFailed
+  models.ConnectionTypeEnum:
+    enum:
+    - anonymous
+    - password
+    - certificate
+    type: string
+    x-enum-varnames:
+    - ConnectionAnonymous
+    - ConnectionPassword
+    - ConnectionCertificate
+  models.DisconnectRequest:
+    properties:
+      UUID:
+        type: string
+    required:
+    - UUID
+    type: object
+  models.DisconnectResponse:
+    properties:
+      disconnected:
+        type: boolean
+    required:
+    - disconnected
+    type: object
+  models.DisconnectResponseSwagger:
+    properties:
+      response:
+        properties:
+          data:
+            $ref: '#/definitions/models.DisconnectResponse'
+          message:
+            example: Successfully disconnected
+            type: string
+          type:
+            example: object
+            type: string
+        type: object
+      status:
+        example: ok
+        type: string
+    type: object
+  models.GetConnectionPoolResponseSwagger:
+    properties:
+      response:
+        properties:
+          data:
+            $ref: '#/definitions/models.ConnectionPoolResponse'
+          message:
+            example: Successfully get connection pool
+            type: string
+          type:
+            example: object
+            type: string
+        type: object
+      status:
+        example: ok
+        type: string
+    type: object
+  models.MessageSecurityModeEnum:
+    enum:
+    - None
+    - Sign
+    - SignAndEncrypt
+    type: string
+    x-enum-varnames:
+    - ModeNone
+    - ModeSign
+    - ModeSignAndEncrypt
+  models.PollingResponse:
+    properties:
+      polled:
+        type: boolean
+    required:
+    - polled
+    type: object
+  models.PollingResponseSwagger:
+    properties:
+      response:
+        properties:
+          data:
+            $ref: '#/definitions/models.PollingResponse'
+          message:
+            example: Polling started/stopped for machine
+            type: string
+          type:
+            example: object
+            type: string
+        type: object
+      status:
+        example: ok
+        type: string
+    type: object
+  models.SecurityPolicyEnum:
+    enum:
+    - None
+    - Basic128Rsa15
+    - Basic256
+    - Basic256Sha256
+    type: string
+    x-enum-varnames:
+    - PolicyNone
+    - PolicyBasic128Rsa15
+    - PolicyBasic256
+    - PolicyBasic256Sha256
+  models.UUIDResponse:
+    properties:
+      UUID:
+        type: string
+    required:
+    - UUID
+    type: object
+  models.UUIDResponseSwagger:
+    properties:
+      response:
+        properties:
+          data:
+            $ref: '#/definitions/models.UUIDResponse'
+          message:
+            example: Successfully connected
+            type: string
+          type:
+            example: object
+            type: string
+        type: object
+      status:
+        example: ok
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: support@example.com
+    name: API Support
+  description: API для работы с протоколом OPC UA
+  title: OpcUaService API
+  version: 1.0.0
+paths:
+  /api/v1/polling/start:
+    get:
+      description: Запускает опрос OPC UA для конкретного станка по UUID
+      parameters:
+      - description: UUID станка
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.DisconnectRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Мониторинг запущен
+          schema:
+            $ref: '#/definitions/models.PollingResponseSwagger'
+        "400":
+          description: Неверный формат запроса
+          schema:
+            $ref: '#/definitions/handlers.IncorrectFormatError'
+        "404":
+          description: Данные не найдены
+          schema:
+            $ref: '#/definitions/handlers.NotFoundError'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/handlers.InternalServerError'
+      summary: Запустить мониторинг станка
+      tags:
+      - Polling
+  /api/v1/polling/stop:
+    get:
+      description: Останавливает опрос OPC UA для конкретного станка по UUID
+      parameters:
+      - description: UUID станка
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.DisconnectRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Мониторинг запущен
+          schema:
+            $ref: '#/definitions/models.PollingResponseSwagger'
+        "400":
+          description: Неверный формат запроса
+          schema:
+            $ref: '#/definitions/handlers.IncorrectFormatError'
+        "404":
+          description: Данные не найдены
+          schema:
+            $ref: '#/definitions/handlers.NotFoundError'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/handlers.InternalServerError'
+      summary: Остановить мониторинг станка
+      tags:
+      - Polling
+  /connect:
+    delete:
+      consumes:
+      - application/json
+      description: Закрывает соединение OPC UA по UUID
+      parameters:
+      - description: UUID для отключения
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.DisconnectRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Успешное отключение
+          schema:
+            $ref: '#/definitions/models.DisconnectResponseSwagger'
+        "400":
+          description: Неверный формат запроса
+          schema:
+            $ref: '#/definitions/handlers.IncorrectFormatError'
+        "404":
+          description: Данные не найдены
+          schema:
+            $ref: '#/definitions/handlers.NotFoundError'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/handlers.InternalServerError'
+      summary: Отключение сессии
+      tags:
+      - Connection
+    get:
+      description: Возвращает список активных соединений в пуле OPC UA
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список активных соединений
+          schema:
+            $ref: '#/definitions/models.GetConnectionPoolResponseSwagger'
+      summary: Получить пул соединений
+      tags:
+      - Connection
+    post:
+      consumes:
+      - application/json
+      description: 'Подключение клиента для мониторинга станка: анонимно, по паролю
+        или по сертификату. Передаётся JSON с данными для входа.'
+      parameters:
+      - description: Данные для входа
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.ConnectionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Успешное подключение
+          schema:
+            $ref: '#/definitions/models.UUIDResponseSwagger'
+        "400":
+          description: Неверный формат запроса или некорректные данные
+          schema:
+            $ref: '#/definitions/handlers.IncorrectFormatError'
+        "401":
+          description: Некорректные данные
+          schema:
+            $ref: '#/definitions/handlers.IncorrectDataError'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/handlers.InternalServerError'
+      summary: Подключение клиента
+      tags:
+      - Connection
+  /connect/check:
+    post:
+      consumes:
+      - application/json
+      description: Проверяет состояние соединения OPC UA по UUID
+      parameters:
+      - description: UUID для проверки
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.CheckConnectionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Информация о подключении
+          schema:
+            $ref: '#/definitions/models.CheckConnectionResponseSwagger'
+        "400":
+          description: Неверный формат запроса
+          schema:
+            $ref: '#/definitions/handlers.IncorrectFormatError'
+        "404":
+          description: Данные не найдены
+          schema:
+            $ref: '#/definitions/handlers.NotFoundError'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/handlers.InternalServerError'
+      summary: Проверка соединения
+      tags:
+      - Connection
+swagger: "2.0"

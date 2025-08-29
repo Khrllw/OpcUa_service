@@ -12,6 +12,10 @@ type AppError struct {
 	IsUserFacing bool   `json:"-"`       // Внутреннее поле
 }
 
+func (e *AppError) Unwrap() error {
+	return e.Err
+}
+
 func (a *AppError) Error() string {
 	if a == nil {
 		return ""
@@ -27,14 +31,22 @@ type DBError struct {
 	Err     error
 }
 
+func (e *DBError) Error() string {
+	return fmt.Sprintf("%s: %v", e.Message, e.Err)
+}
+
+func (e *DBError) Unwrap() error {
+	return e.Err // или e.inner, если ты хранишь вложенную ошибку под другим именем
+}
+
 const (
 	InternalServerError = "internal server error"
 	BadRequest          = "bad request"
 	NotFound            = "not_found"
 	UnauthorizedError   = "unauthorized"
 
-	UnauthorizedErrorCode   = 401
-	InvalidDataCode         = 402
+	BadRequestErrorCode     = 400
+	InvalidDataCode         = 400
 	ForbiddenErrorCode      = 403
 	InternalServerErrorCode = 500
 	NotFoundErrorCode       = 404
@@ -78,16 +90,6 @@ var ErrNotFound = errors.New("not found")
 
 func NewNotFoundError(message string) error {
 	return fmt.Errorf("%w: %s", ErrNotFound, message)
-}
-
-// NewUnauthorizedError создает ошибку авторизации
-func NewUnauthorizedError(op string, message string) *AppError {
-	return &AppError{
-		Code:         UnauthorizedErrorCode,
-		Message:      fmt.Sprintf("%s: %s", op, message),
-		Err:          ErrUnauthorized,
-		IsUserFacing: true,
-	}
 }
 
 // NewInternalError создает ошибку внутреннего сервера
