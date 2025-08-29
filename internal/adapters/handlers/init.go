@@ -51,15 +51,17 @@ func ProvideRouter(h *Handler, cfg *config.Config, swagCfg *swagger.Config) http
 
 	// Подключение
 	connectGroup := baseRouter.Group("/connect")
-	connectGroup.POST("/", h.AddConnection)
-	connectGroup.GET("/", h.GetConnectionPool)
-	connectGroup.DELETE("/", h.CloseConnection)
-	connectGroup.POST("/check", h.CheckConnection)
+	connectGroup.POST("/", h.AddConnection)        // Добавить соединение
+	connectGroup.GET("/", h.GetConnectionPool)     // Получить пул открытых соединений
+	connectGroup.DELETE("/", h.CloseConnection)    // Закрыть соединение
+	connectGroup.POST("/check", h.CheckConnection) // Проверить соединение
 
 	// Мониторинг
-	poolingGroup := baseRouter.Group("/pooling")
-	poolingGroup.GET("/start", h.StartPooling)
-	poolingGroup.GET("/stop", h.StopPooling)
+	pollingGroup := baseRouter.Group("/polling")
+	pollingGroup.GET("/start", h.StartPollingByUUID)
+	pollingGroup.GET("/stop", h.StopPollingByUUID)
+
+	//baseRouter.GET("/control", h.GetControlProgram) // Получить управляющую программу
 
 	return r
 }

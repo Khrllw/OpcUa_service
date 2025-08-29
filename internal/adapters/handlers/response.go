@@ -13,6 +13,7 @@ const (
 	Object = "object" // Используется когда ответ содержит один объект
 	Array  = "array"  // Используется когда ответ содержит массив объектов
 	Empty  = "empty"  // Используется когда ответ не содержит данных
+	UUID   = "uuid"
 )
 
 // Response - интерфейс для стандартных ответов API
@@ -86,8 +87,8 @@ type ResultResponse struct {
 	Status   string `json:"status" example:"ok"` // ok
 	Response struct {
 		Message string      `json:"message" example:"Success operation"`
-		Type    string      `json:"type" example:"object"` // [AVALIABLE]: object, array, empty
-		Data    interface{} `json:"data,omitempty"`        // [AVALIABLE]: object, array of objects, empty
+		Type    string      `json:"type" example:"object"` // [AVAILABLE]: object, array, empty, UUID
+		Data    interface{} `json:"data,omitempty"`        // [AVAILABLE]: object, array of objects, empty
 	} `json:"response"`
 }
 

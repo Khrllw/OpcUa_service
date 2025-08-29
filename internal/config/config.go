@@ -15,8 +15,8 @@ type ServerConfig struct {
 }
 
 type KafkaConfig struct {
-	Brokers []string
-	Topic   string
+	KafkaBrokers []string `json:"kafka_brokers"`
+	KafkaTopic   string   `json:"kafka_topic"`
 }
 
 type Config struct {
@@ -26,7 +26,6 @@ type Config struct {
 	Logging    LoggerConfig
 	Services   Services
 	Server     ServerConfig
-	Kafka      KafkaConfig
 }
 
 func DefaultServerConfig() ServerConfig {
@@ -45,6 +44,7 @@ func DefaultServerConfig() ServerConfig {
 
 type AppConfig struct {
 	Version string
+	Kafka   KafkaConfig
 }
 
 type HTTPConfig struct {
@@ -89,6 +89,12 @@ func LoadConfig() (*Config, error) {
 	cfg := &Config{
 		App: AppConfig{
 			Version: getEnv("VERSION", "1.0.0"),
+			Kafka: KafkaConfig{
+				KafkaBrokers: []string{
+					getEnv("KAFKA_BROKER", "localhost:9092"),
+				},
+				KafkaTopic: getEnv("KAFKA_TOPIC", "opc-data"),
+			},
 		},
 		HTTPServer: HTTPConfig{
 			Port:              getEnv("SERVER_PORT", "6004"),
@@ -124,12 +130,6 @@ func LoadConfig() (*Config, error) {
 				"http://127.0.0.1:3000",
 				"http://127.0.0.1:5173",
 			},
-		},
-		Kafka: KafkaConfig{
-			Brokers: []string{
-				getEnv("KAFKA_BROKER", "localhost:9092"),
-			},
-			Topic: getEnv("KAFKA_TOPIC", "opc-data"),
 		},
 	}
 	return cfg, nil

@@ -1,10 +1,11 @@
 package machine_models
 
 import (
-	"bytes"
+	"encoding/json"
 	"fmt"
 	"github.com/awcullen/opcua/ua"
 	"log"
+	"opc_ua_service/internal/domain/models"
 	"opc_ua_service/internal/domain/models/opc_custom"
 	"time"
 )
@@ -74,6 +75,7 @@ type MachineData struct {
 	ExecutionStack       []string       `json:"ExecutionStack,omitempty"`
 	ActiveProgramName    *string        `json:"ActiveProgramName,omitempty"`
 	Name                 *string        `json:"Name,omitempty"`
+	SerialNumber         *string        `json:"SerialNumber,omitempty"`
 }
 
 type ExecutionState struct {
@@ -105,39 +107,21 @@ type HeidenhainTNC640Data struct {
 	CurrentTool    opc_custom.ToolData                   `json:"current_tool"`
 	Machine        MachineData                           `json:"machine_data"`
 	ExecutionStack *[]opc_custom.ProgramPositionDataType `json:"execution_stack"`
+	Timestamp      time.Time                             `json:"timestamp"`
 }
 
-func (m *HeidenhainTNC640Data) DecodeFromVariant(v ua.Variant) error {
-	switch val := v.(type) {
-	case ua.ExtensionObject:
-		if bodyBytes, ok := val.([]byte); ok {
-			r := bytes.NewReader(bodyBytes)
-			dec := ua.NewBinaryDecoder(r, ua.NewEncodingContext())
-			if err := dec.Decode(m); err != nil {
-				return fmt.Errorf("failed to decode ExtensionObject: %w", err)
-			}
-			return nil
-		}
-		return fmt.Errorf("ExtensionObject.Body is not []byte but %T", val)
-
-	case string:
-		fmt.Printf("String value received: %s\n", val)
-		return nil
-
-	case []ua.Variant:
-		for i, subVal := range val {
-			fmt.Printf("Array[%d] = %v\n", i, subVal)
-		}
-		return nil
-
-	default:
-		return fmt.Errorf("unsupported Variant type: %T", val)
-	}
+func (m *HeidenhainTNC640Data) GetExecutionStack() ([]opc_custom.ProgramPositionDataType, error) {
+	return *m.ExecutionStack, nil
 }
 
 func (m *HeidenhainTNC640Data) ConvertNodeToMachineData(nodeID string, v any) error {
 	//ua.ObjectIDReadRequestEncodingDefaultXML
 	switch nodeID {
+	case "ns=1;i=56004": // SerialNumber
+		if val, ok := v.(string); ok {
+			m.Machine.SerialNumber = &val
+			return nil
+		}
 	// -------------------------- SPEED OVERRIDE --------------------------
 	case "ns=1;i=100027": // SpeedOverride
 		if val, ok := v.(uint32); ok {
@@ -318,4 +302,75 @@ func (m *HeidenhainTNC640Data) ConvertNodeToMachineData(nodeID string, v any) er
 		return fmt.Errorf("unsupported NodeID: %s", nodeID)
 	}
 	return fmt.Errorf("type mismatch for NodeID: %s", nodeID)
+}
+
+// ToResponse TODO: Все что закомменчено хз то это
+func (m *HeidenhainTNC640Data) ToResponse() models.MachineDataResponse {
+	resp := models.MachineDataResponse{
+		MachineId: *m.Machine.SerialNumber,
+		Timestamp: 0,
+		//IsEnabled:          false,
+		//IsEmergency:        false,
+		MachineState: m.Machine.ExecutionState.LastTransition.String(),
+		//ProgramMode:        "",
+		//AxisMovementStatus: "",
+		//HasAlarms:          false,
+		//AlarmStatus:        "",
+		//Alarms:             nil,
+		FeedOverride: m.Machine.FeedOverride.Value,
+		//FeedRate: 0,
+		//PartsCount:    0,
+		PowerOnTime:   formatTime(*m.Machine.MachineUpTime),
+		OperatingTime: formatTime(*m.Machine.ControlUpTime),
+		//CycleTime:     0,
+		CuttingTime: formatTime(*m.Machine.ProgramExecutionTime),
+		//SpindleInfos:
+		//CountourFeedRate:
+		//JogOverride:
+	}
+	if m.ExecutionStack != nil {
+		pr_data := *m.ExecutionStack
+		var last uint32 = 0
+		for _, prData := range pr_data {
+			if prData.CallStackLevel >= last {
+				resp.CurrentProgram.ProgramNumber = int(prData.BlockNumber)
+				resp.CurrentProgram.ProgramName = prData.ProgramName
+				resp.CurrentProgram.GCodeLine = prData.BlockContent
+			}
+		}
+	}
+	var axisInfos []models.AxisInfosResponse
+
+	if m.CutterLocation != nil {
+		axisInfos = make([]models.AxisInfosResponse, len(*m.CutterLocation))
+
+		for i, cutInfo := range *m.CutterLocation {
+			axisInfos[i] = models.AxisInfosResponse{
+				Name:     cutInfo.CoordinateName,
+				Position: cutInfo.Position,
+			}
+		}
+	}
+	resp.AxisInfos = axisInfos
+	return resp
+}
+
+func (m *HeidenhainTNC640Data) ToJSON() string {
+	bytes, err := json.MarshalIndent(m.ToResponse(), "", "  ")
+	if err != nil {
+		log.Printf("Failed to marshal HeidenhainTNC640Data to JSON: %v", err)
+		return ""
+	}
+	return string(bytes)
+}
+
+func formatTime(ms float64) string {
+	d := time.Duration(ms * float64(time.Millisecond))
+
+	hours := int(d.Hours())
+	minutes := int(d.Minutes()) % 60
+	secs := int(d.Seconds()) % 60
+
+	return fmt.Sprintf("%02d:%02d:%02d", hours, minutes, secs)
+
 }

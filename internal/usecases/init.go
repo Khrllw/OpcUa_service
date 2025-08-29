@@ -9,14 +9,14 @@ import (
 
 type UseCases struct {
 	interfaces.ConnectionUsecase
-	interfaces.PoolingUsecase
+	interfaces.PollingUsecase
 }
 
 func NewUsecases(r interfaces.Repository, s interfaces.OpcService, conf *config.Config) interfaces.Usecases {
 
 	return &UseCases{
-		NewConnectionUsecase(s),
-		NewPoolingUsecase(s, 30),
+		NewConnectionUsecase(s, r),
+		NewPollingUsecase(s, r),
 	}
 
 }

@@ -110,11 +110,12 @@ func (cm *CertificateManager) LoadServerCertificate(certPath string) *x509.Certi
 	return cert
 }
 
+// TODO: Проверить потом без WithInsecureSkipVerify
 func (cm *CertificateManager) BuildClientOptions(endpoint *ua.EndpointDescription, policyID string, certBytes []byte, key *rsa.PrivateKey) []client.Option {
 	return []client.Option{
 		client.WithClientCertificate(certBytes, key),
 		client.WithX509Identity(certBytes, key),
-		client.WithTrustedCertificatesFile("certs/new_server/heopcua-rootca_khrllw--340595_2025aug06_132042.der"),
+		//client.WithTrustedCertificatesFile("certs/new_server/heopcua-rootca_khrllw--340595_2025aug06_132042.der"),
 		client.WithSecurityPolicyURI(endpoint.SecurityPolicyURI, endpoint.SecurityMode),
 		client.WithInsecureSkipVerify(), // убрать в production
 	}

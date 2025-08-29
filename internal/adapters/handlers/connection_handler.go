@@ -1,61 +1,123 @@
 package handlers
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
-	"net/http"
+	"github.com/google/uuid"
 	"opc_ua_service/internal/domain/models"
+	"opc_ua_service/pkg/errors"
 )
 
-// AddConnection аутентифицирует клиента для мониторинга ЧПУ
-// @Summary Аутентификация клиента
-// @Description Аутентификация клиента для мониторинга станка: анонимно, по паролю или по сертификату. Передаётся JSON с данными для входа.
+// AddConnection подключает клиента для мониторинга ЧПУ
+// @Summary Подключение клиента
+// @Description Подключение клиента для мониторинга станка: анонимно, по паролю или по сертификату. Передаётся JSON с данными для входа.
 // @Tags Connection
 // @Accept json
 // @Produce json
 // @Param input body models.ConnectionRequest true "Данные для входа"
-// @Success 200 {object} models.ConnectionAuthResponse "Успешная аутентификация"
-// @Failure 400 {object} gin.H "Неверный формат запроса или неизвестный тип аутентификации"
-// @Failure 401 {object} gin.H "Неверные учетные данные"
-// @Failure 500 {object} gin.H "Внутренняя ошибка сервера"
+// @Success 200 {object} models.UUIDResponseSwagger "Успешное подключение"
+// @Failure 400 {object} IncorrectFormatError "Неверный формат запроса или некорректные данные"
+// @Failure 401 {object} IncorrectDataError "Некорректные данные"
+// @Failure 500 {object} InternalServerError "Внутренняя ошибка сервера"
 // @Router /connect [post]
 func (h *Handler) AddConnection(c *gin.Context) {
 	var req models.ConnectionRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		h.logger.Error("Error decoding request", "error", err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request payload"})
+		h.BadRequest(c, err)
 		return
 	}
 
-	h.logger.Info("Auth attempt", "authType", req.ConnectionType, "username", req.Username)
+	var err *errors.AppError
+	var resp models.UUIDResponse
 
-	var token string
-	var err error
-
-	connInfo := &models.ConnectionInfo{}
 	switch req.ConnectionType {
 	case "anonymous":
-		token, err = h.usecase.LoginClientAnonymous()
+		resp, err = h.usecase.ConnectAnonymous(req)
 	case "password":
-		token, err = h.usecase.LoginClientPassword(req)
+		resp, err = h.usecase.ConnectWithPassword(req)
 	case "certificate":
-		connInfo, err = h.usecase.ConnectByCert(req)
+		resp, err = h.usecase.ConnectWithCertificate(req)
 	default:
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Unknown auth type"})
+		h.BadRequest(c, fmt.Errorf("unknown connection type: %s", req.ConnectionType))
 		return
 	}
 
 	if err != nil {
-		h.logger.Error("Auth failed", "error", err)
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
+		h.logger.Error("Connection failed", "error", err)
+		h.ErrorResponse(c, err, err.Code, err.Message, true)
 		return
 	}
-	inf := models.ToResponse(connInfo)
+	h.ResultResponse(c, "Successfully connected", Object, resp)
+}
 
-	c.JSON(http.StatusOK, models.ConnectionAuthResponse{
-		Status:         models.StatusOK,
-		Token:          token,
-		ConnectionInfo: &inf,
-	})
+// CloseConnection обрабатывает запрос на отключение сессии
+// @Summary Отключение сессии
+// @Description Закрывает соединение OPC UA по UUID
+// @Tags Connection
+// @Accept json
+// @Produce json
+// @Param input body models.DisconnectRequest true "UUID для отключения"
+// @Success 200 {object} models.DisconnectResponseSwagger "Успешное отключение"
+// @Failure 400 {object} IncorrectFormatError "Неверный формат запроса"
+// @Failure 404 {object} NotFoundError "Данные не найдены"
+// @Failure 500 {object} InternalServerError "Внутренняя ошибка сервера"
+// @Router /connect [delete]
+func (h *Handler) CloseConnection(c *gin.Context) {
+	var req models.DisconnectRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		h.BadRequest(c, err)
+		return
+	}
+	id, err := uuid.Parse(req.UUID)
+	if err != nil {
+		h.BadRequest(c, fmt.Errorf("incorrect UUID: %s", req.UUID))
+	}
+
+	// Вызываем usecase для закрытия соединения
+	state, eerr := h.usecase.DisconnectByUUID(id)
+	if eerr != nil {
+		if state == nil || *state == false {
+			h.ErrorResponse(c, err, eerr.Code, eerr.Message, true)
+			return
+		} else {
+			h.ResultResponse(c, "Disconnected with database record delete error", Object, models.DisconnectResponse{Disconnected: true})
+		}
+	}
+
+	h.ResultResponse(c, "Successfully disconnected", Object, models.DisconnectResponse{Disconnected: true})
+}
+
+// CheckConnection проверяет здоровье соединения по UUID
+// @Summary Проверка соединения
+// @Description Проверяет состояние соединения OPC UA по UUID
+// @Tags Connection
+// @Accept json
+// @Produce json
+// @Param input body models.CheckConnectionRequest true "UUID для проверки"
+// @Success 200 {object} models.CheckConnectionResponseSwagger "Информация о подключении"
+// @Failure 400 {object} IncorrectFormatError "Неверный формат запроса"
+// @Failure 404 {object} NotFoundError "Данные не найдены"
+// @Failure 500 {object} InternalServerError "Внутренняя ошибка сервера"
+// @Router /connect/check [post]
+func (h *Handler) CheckConnection(c *gin.Context) {
+	var req models.CheckConnectionRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		h.BadRequest(c, err)
+		return
+	}
+	id, err := uuid.Parse(req.UUID)
+	if err != nil {
+		h.BadRequest(c, fmt.Errorf("incorrect UUID: %s", req.UUID))
+	}
+
+	// Получаем информацию о соединении
+	connInfo, eerr := h.usecase.GetConnectionState(id)
+	if eerr != nil {
+		h.ErrorResponse(c, eerr, eerr.Code, eerr.Message, false)
+		return
+	}
+
+	h.ResultResponse(c, "Successfully get connection info", Object, connInfo)
 }
 
 // GetConnectionPool возвращает текущий пул открытых соединений
@@ -63,91 +125,9 @@ func (h *Handler) AddConnection(c *gin.Context) {
 // @Description Возвращает список активных соединений в пуле OPC UA
 // @Tags Connection
 // @Produce json
-// @Success 200 {object} gin.H "Список активных соединений"
-// @Failure 500 {object} gin.H "Внутренняя ошибка сервера"
+// @Success 200 {object} models.GetConnectionPoolResponseSwagger "Список активных соединений"
 // @Router /connect [get]
 func (h *Handler) GetConnectionPool(c *gin.Context) {
-	// Получаем все активные соединения из usecase/pool
-	pool := h.usecase.GetActiveConnections() // возвращает []*models.ConnectionInfo
-
-	// Преобразуем все в респонс
-	var resp []models.ConnectionInfoResponse
-	for _, connInfo := range pool {
-		if connInfo != nil {
-			resp = append(resp, models.ToResponse(connInfo))
-		}
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"status":      "ok",
-		"poolSize":    len(resp),
-		"connections": resp, // массив объектов ConnectionInfoResponse
-	})
-}
-
-// CloseConnection обрабатывает DELETE запрос на отключение сессии по JSON
-// @Summary Отключение сессии
-// @Description Закрывает соединение OPC UA по sessionID. sessionID передаётся в теле запроса в формате JSON.
-// @Tags Connection
-// @Accept json
-// @Produce json
-// @Param input body DisconnectRequest true "Session ID для отключения"
-// @Success 200 {object} gin.H "Сообщение об успешном отключении"
-// @Failure 400 {object} gin.H "Отсутствует или некорректный sessionID"
-// @Failure 500 {object} gin.H "Не удалось отключить сессию"
-// @Router /connections [delete]
-func (h *Handler) CloseConnection(c *gin.Context) {
-	var req models.DisconnectRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Missing or invalid sessionID"})
-		return
-	}
-
-	// Вызываем usecase для закрытия соединения
-	err := h.usecase.DisconnectBySessionID(req.SessionID)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to disconnect session: " + err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"message": "Session " + req.SessionID + " disconnected successfully"})
-}
-
-// CheckConnectionHandler проверяет здоровье соединения по sessionID
-// @Summary Проверка соединения
-// @Description Проверяет состояние соединения OPC UA по sessionID
-// @Tags Connection
-// @Accept json
-// @Produce json
-// @Param input body CheckConnectionRequest true "Session ID для проверки"
-// @Success 200 {object} gin.H "Статус соединения"
-// @Failure 400 {object} gin.H "Отсутствует или некорректный sessionID"
-// @Failure 404 {object} gin.H "Соединение не найдено"
-// @Failure 500 {object} gin.H "Внутренняя ошибка сервера"
-// @Router /connect/check [post]
-func (h *Handler) CheckConnection(c *gin.Context) {
-	var req models.CheckConnectionRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Missing or invalid sessionID"})
-		return
-	}
-
-	// Получаем информацию о соединении
-	connInfo, err := h.usecase.GetConnectionStats(req.SessionID)
-	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Connection not found: " + err.Error()})
-		return
-	}
-
-	// Проверяем состояние
-	status := "healthy"
-	if isHealthy, ok := connInfo["is_healthy"].(bool); ok && !isHealthy {
-		status = "unhealthy"
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"sessionID": req.SessionID,
-		"status":    status,
-		"details":   connInfo,
-	})
+	resp := h.usecase.GetActiveConnections()
+	h.ResultResponse(c, "Successfully get connection pool", Object, resp)
 }

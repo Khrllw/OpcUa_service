@@ -6,7 +6,10 @@ import (
 	"crypto/x509"
 	"github.com/awcullen/opcua/client"
 	"github.com/awcullen/opcua/ua"
+	"github.com/google/uuid"
 	"opc_ua_service/internal/domain/models"
+	connection_models "opc_ua_service/internal/domain/models/connection_models"
+	"opc_ua_service/internal/domain/models/opc_custom"
 	"time"
 )
 
@@ -28,42 +31,24 @@ type CertificateManagerService interface {
 }
 
 type OpcConnectorService interface {
-	// Получить или создать подключение по конфигу
-	GetOrCreateConnection(config models.ConnectionConfig) (*client.Client, error)
-
-	// Создать новое подключение и вернуть ConnectionInfo
-	CreateConnection(config models.ConnectionConfig) (*models.ConnectionInfo, error)
-
-	// Найти открытое и здоровое соединение по объекту client
-	FindOpenConnectionByConn(conn *client.Client) *models.ConnectionInfo
-
-	// Закрыть подключение по объекту client
-	CloseConnectionByConn(conn *client.Client) error
-
-	// Закрыть все соединения
+	GetConnection(config connection_models.CertificateConnection) (*client.Client, error)
+	CreateConnection(config connection_models.CertificateConnection) (*uuid.UUID, error)
 	CloseAll()
+	GetConnectionByUUID(id uuid.UUID) (*client.Client, error)
+	GetConnectionInfoByUUID(id uuid.UUID) (*models.ConnectionInfo, error)
+	//GetControlProgramInfo(sessionID string) ([]opc_custom.ProgramPositionDataType, error)
 
-	// Получить клиент по sessionID
-	GetConnectionBySessionID(sessionID string) (*client.Client, error)
-
-	// Получить ConnectionInfo по sessionID
-	GetConnectionInfoBySessionID(sessionID string) (*models.ConnectionInfo, error)
-
-	// Получить все соединения
-	GetAllConnectionsInfo() []*models.ConnectionInfo
-
-	// Очистка неиспользуемых соединений
 	Cleanup(maxIdleTime time.Duration) int
-
-	// CloseConnection закрывает подключение и удаляет его из пула
-	CloseConnection(conn *client.Client) error
-
-	// GetGlobalStats возвращает глобальную статистику по всем соединениям
+	CloseConnection(id uuid.UUID) error
 	GetGlobalStats() models.ConnectorStats
+	GetAllConnectionsInfo() map[uuid.UUID]*models.ConnectionInfo
+	FindOpenConnection(id uuid.UUID) *models.ConnectionInfo
 }
 
 type OpcCommunicatorService interface {
 	CallOPCMethod(ctx context.Context, c *client.Client, objectNodeID, methodNodeID ua.NodeID, inputArgs ...ua.Variant) ([]ua.Variant, error)
-	ReadMachineNodes(sessionID string, machineType string) (map[string]*ua.Variant, error)
-	ReadMachineData(sessionID string) (MachineData, error)
+	ReadMachineData(id uuid.UUID) (MachineData, error)
+	GetControlProgramInfo(id uuid.UUID) ([]opc_custom.ProgramPositionDataType, error)
+	StartPollingForMachine(id uuid.UUID) error
+	StopPollingForMachine(id uuid.UUID) error
 }
