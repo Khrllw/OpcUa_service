@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"opc_ua_service/internal/domain/models"
+	connection_models "opc_ua_service/internal/domain/models/connection_models"
 	"opc_ua_service/pkg/errors"
 )
 
@@ -31,11 +32,11 @@ func (h *Handler) AddConnection(c *gin.Context) {
 	var resp models.UUIDResponse
 
 	switch req.ConnectionType {
-	case "anonymous":
+	case connection_models.ConnectionAnonymous:
 		resp, err = h.usecase.ConnectAnonymous(req)
-	case "password":
+	case connection_models.ConnectionPassword:
 		resp, err = h.usecase.ConnectWithPassword(req)
-	case "certificate":
+	case connection_models.ConnectionCertificate:
 		resp, err = h.usecase.ConnectWithCertificate(req)
 	default:
 		h.BadRequest(c, fmt.Errorf("unknown connection type: %s", req.ConnectionType))
@@ -56,14 +57,14 @@ func (h *Handler) AddConnection(c *gin.Context) {
 // @Tags Connection
 // @Accept json
 // @Produce json
-// @Param input body models.DisconnectRequest true "UUID для отключения"
+// @Param input body models.UUIDRequest true "UUID для отключения"
 // @Success 200 {object} models.DisconnectResponseSwagger "Успешное отключение"
 // @Failure 400 {object} IncorrectFormatError "Неверный формат запроса"
 // @Failure 404 {object} NotFoundError "Данные не найдены"
 // @Failure 500 {object} InternalServerError "Внутренняя ошибка сервера"
 // @Router /connect [delete]
 func (h *Handler) CloseConnection(c *gin.Context) {
-	var req models.DisconnectRequest
+	var req models.UUIDRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		h.BadRequest(c, err)
 		return

@@ -136,7 +136,7 @@ curl -X DELETE "http://localhost:8080/api/v1/connect"
 
 ```json
 {
-  "sessionID": "ns=3;i=3948713892"
+  "UUID": "ns=3;i=3948713892"
 }
 ```
 
@@ -158,7 +158,7 @@ curl -X POST "http://localhost:8080/api/v1/connect/check"
 
 ```json
 {
-  "sessionID": "ns=3;i=2069698691"
+  "UUID": "ns=3;i=2069698691"
 }
 ```
 
@@ -172,7 +172,7 @@ curl -X POST "http://localhost:8080/api/v1/connect/check"
     "session_id": "ns=3;i=2069698691",
     "use_count": 1
   },
-  "sessionID": "ns=3;i=2069698691",
+  "UUID": "ns=3;i=2069698691",
   "status": "healthy"
 }
 ```

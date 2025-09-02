@@ -29,6 +29,7 @@ func New() *fx.App {
 		ServiceModule,
 		UsecaseModule,
 		HttpServerModule,
+		fx.Invoke(InvokeRestoreConnections),
 	)
 }
 
@@ -133,4 +134,36 @@ func intToUint(c int) uint {
 		panic([2]any{"a negative number", c})
 	}
 	return uint(c)
+}
+
+// InvokeRestoreConnections восстанавливает подключения и опросы при старте приложения.
+func InvokeRestoreConnections(lc fx.Lifecycle, uc interfaces.Usecases, dbRepo interfaces.Repository, logger *logging.Logger) {
+	lc.Append(fx.Hook{
+		OnStart: func(ctx context.Context) error {
+			logger.Info("Restoring connections from the database...")
+			machines, err := dbRepo.GetAllCncMachines()
+			if err != nil {
+				logger.Error("Failed to get machine list from DB", "error", err)
+				return nil
+			}
+
+			if len(machines) == 0 {
+				logger.Info("No saved connections found to restore.")
+				return nil
+			}
+
+			for _, machine := range machines {
+				logger.Info("Attempting to restore connection", "UUID", machine.UUID, "model", machine.Model, "endpoint", machine.EndpointURL)
+
+				connInfo, _ := uc.RestoreConnection(machine)
+
+				if connInfo != nil {
+					logger.Info("Connection restored successfully in pool", "UUID", machine.UUID)
+				} else {
+					logger.Warn("Connection restored in pool but is unhealthy. Will retry in background.", "UUID", machine.UUID)
+				}
+			}
+			return nil
+		},
+	})
 }

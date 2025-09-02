@@ -12,14 +12,14 @@ import (
 // @Description Запускает опрос OPC UA для конкретного станка по UUID
 // @Tags Polling
 // @Produce json
-// @Param input body models.DisconnectRequest true "UUID станка"
+// @Param input body models.UUIDRequest true "UUID станка"
 // @Success 200 {object} models.PollingResponseSwagger "Мониторинг запущен"
 // @Failure 400 {object} IncorrectFormatError "Неверный формат запроса"
 // @Failure 404 {object} NotFoundError "Данные не найдены"
 // @Failure 500 {object} InternalServerError "Внутренняя ошибка сервера"
 // @Router /api/v1/polling/start [get]
 func (h *Handler) StartPollingByUUID(c *gin.Context) {
-	var req models.DisconnectRequest
+	var req models.UUIDRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		h.BadRequest(c, err)
 		return
@@ -36,7 +36,7 @@ func (h *Handler) StartPollingByUUID(c *gin.Context) {
 		return
 	}
 
-	h.ResultResponse(c, fmt.Sprintf("Polling started for machine %s", id), Object, models.PollingResponse{Polled: false})
+	h.ResultResponse(c, fmt.Sprintf("Polling started for machine %s", id), Object, models.PollingResponse{Polled: true})
 }
 
 // StopPollingByUUID останавливает мониторинг для одного станка
@@ -44,14 +44,14 @@ func (h *Handler) StartPollingByUUID(c *gin.Context) {
 // @Description Останавливает опрос OPC UA для конкретного станка по UUID
 // @Tags Polling
 // @Produce json
-// @Param input body models.DisconnectRequest true "UUID станка"
+// @Param input body models.UUIDRequest true "UUID станка"
 // @Success 200 {object} models.PollingResponseSwagger "Мониторинг запущен"
 // @Failure 400 {object} IncorrectFormatError "Неверный формат запроса"
 // @Failure 404 {object} NotFoundError "Данные не найдены"
 // @Failure 500 {object} InternalServerError "Внутренняя ошибка сервера"
 // @Router /api/v1/polling/stop [get]
 func (h *Handler) StopPollingByUUID(c *gin.Context) {
-	var req models.DisconnectRequest
+	var req models.UUIDRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		h.BadRequest(c, err)
 		return

@@ -20,19 +20,28 @@ type OpcService interface {
 }
 
 type CertificateManagerService interface {
-	LoadCertificate(certPath string) ([]byte, *x509.Certificate, error)
 	SelectCertificateEndpoint(ctx context.Context, endpointURL string) (*ua.EndpointDescription, string)
 	PrintCertInfo(label string, cert *x509.Certificate)
 	VerifyKeyMatchesCert(cert *x509.Certificate, key *rsa.PrivateKey) error
-	LoadPrivateKey(keyPath string) (*rsa.PrivateKey, error)
+
+	LoadPrivateKey(keyPath string) ([]byte, *rsa.PrivateKey, error)
+	LoadPrivateKeyBytes(data []byte) (*rsa.PrivateKey, error)
+
+	LoadCertificate(certPath string) ([]byte, *x509.Certificate, error)
 	LoadServerCertificate(certPath string) *x509.Certificate
+	LoadCertificateBytes(data []byte) (*x509.Certificate, error)
+
 	LoadClientCredentials(certPath, keyPath string) ([]byte, *x509.Certificate, *rsa.PrivateKey)
+	LoadClientCredentialsBytes(certBytes, keyBytes []byte) ([]byte, *x509.Certificate, *rsa.PrivateKey)
+	LoadClientCredentialsBase64(certBase64, keyBase64 string) ([]byte, *x509.Certificate, *rsa.PrivateKey)
 	BuildClientOptions(endpoint *ua.EndpointDescription, policyID string, certBytes []byte, key *rsa.PrivateKey) []client.Option
 }
 
 type OpcConnectorService interface {
 	GetConnection(config connection_models.CertificateConnection) (*client.Client, error)
-	CreateConnection(config connection_models.CertificateConnection) (*uuid.UUID, error)
+	CreateAnonymousConnection(config connection_models.AnonymousConnection) (*uuid.UUID, error)
+	CreatePasswordConnection(config connection_models.PasswordConnection) (*uuid.UUID, error)
+	CreateCertificateConnection(config connection_models.CertificateConnection) (*uuid.UUID, error)
 	CloseAll()
 	GetConnectionByUUID(id uuid.UUID) (*client.Client, error)
 	GetConnectionInfoByUUID(id uuid.UUID) (*models.ConnectionInfo, error)
@@ -43,6 +52,9 @@ type OpcConnectorService interface {
 	GetGlobalStats() models.ConnectorStats
 	GetAllConnectionsInfo() map[uuid.UUID]*models.ConnectionInfo
 	FindOpenConnection(id uuid.UUID) *models.ConnectionInfo
+
+	Base64ToBytes(base64Str string) ([]byte, error)
+	BytesToBase64(data []byte) string
 }
 
 type OpcCommunicatorService interface {

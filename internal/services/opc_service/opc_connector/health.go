@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/awcullen/opcua/client"
 	"github.com/awcullen/opcua/ua"
+	"opc_ua_service/internal/domain/models"
 	"time"
 )
 
@@ -33,7 +34,9 @@ func (oc *OpcConnector) checkAllConnectionsHealth() {
 
 	for _, info := range oc.connections {
 		info.Mu.Lock()
-		info.IsHealthy = oc.checkConnectionHealth(info.Conn)
+		if info.IsPolled {
+			info.IsHealthy = oc.checkConnectionHealth(info.Conn)
+		}
 		info.Mu.Unlock()
 	}
 }
@@ -48,4 +51,17 @@ func (oc *OpcConnector) checkConnectionHealth(conn *client.Client) bool {
 		},
 	})
 	return err == nil
+}
+
+// recreateConnection создаёт новое подключение по информации из info
+func (oc *OpcConnector) recreateConnection(info *models.ConnectionInfo) (*client.Client, error) {
+	/*
+		newClient := client.NewClient(info.EndpointURL, info.Options...)
+		err := newClient.Connect(context.Background())
+		if err != nil {
+			return nil, err
+		}
+
+	*/
+	return nil, nil
 }

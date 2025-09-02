@@ -15,7 +15,7 @@ type UseCases struct {
 func NewUsecases(r interfaces.Repository, s interfaces.OpcService, conf *config.Config) interfaces.Usecases {
 
 	return &UseCases{
-		NewConnectionUsecase(s, r),
+		NewConnectionUsecase(s, r, r, r, r),
 		NewPollingUsecase(s, r),
 	}
 

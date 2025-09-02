@@ -33,6 +33,7 @@ type ConnectionInfo struct {
 	LastUsed  time.Time
 	UseCount  int64
 	IsHealthy bool
+	IsPolled  bool
 	Mu        sync.RWMutex
 
 	Manufacturer string

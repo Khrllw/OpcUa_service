@@ -14,12 +14,15 @@ import (
 )
 
 type ConnectionUsecase struct {
-	OpcService interfaces.OpcService
-	Repo       interfaces.CncMachineRepository
+	OpcService   interfaces.OpcService
+	MachineRepo  interfaces.CncMachineRepository
+	CertRepo     interfaces.CertificateConnectionRepository
+	PasswordRepo interfaces.PasswordConnectionRepository
+	AnonRepo     interfaces.AnonymousConnectionRepository
 }
 
-func NewConnectionUsecase(s interfaces.OpcService, r interfaces.CncMachineRepository) *ConnectionUsecase {
-	return &ConnectionUsecase{s, r}
+func NewConnectionUsecase(s interfaces.OpcService, r interfaces.CncMachineRepository, cr interfaces.CertificateConnectionRepository, pr interfaces.PasswordConnectionRepository, ar interfaces.AnonymousConnectionRepository) *ConnectionUsecase {
+	return &ConnectionUsecase{s, r, cr, pr, ar}
 }
 
 // ConnectAnonymous - анонимное подключение
@@ -47,7 +50,10 @@ func (u *ConnectionUsecase) ConnectWithCertificate(request models.ConnectionRequ
 		return empty, errors.NewAppError(errors.InvalidDataCode, "validation failed", err, true)
 	}
 
-	req := NewCertificateConnectionFromRequest(&request)
+	req, err := u.NewCertificateConnectionFromRequest(&request)
+	if err != nil {
+		return empty, errors.NewAppError(errors.InvalidDataCode, "invalid request", err, true)
+	}
 
 	config := connection_models.CertificateConnection{
 		EndpointURL:  req.EndpointURL,
@@ -60,8 +66,8 @@ func (u *ConnectionUsecase) ConnectWithCertificate(request models.ConnectionRequ
 		Model:        req.Model,
 	}
 
-	machineUUID, err := u.сreateConnection(config)
-	if err != nil {
+	machineUUID, eerr := u.сreateConnection(config)
+	if eerr != nil {
 		return empty, errors.NewAppError(errors.InternalServerErrorCode, "failed to create connection", err, false)
 	}
 
@@ -76,7 +82,7 @@ func (u *ConnectionUsecase) сreateConnection(req connection_models.CertificateC
 	var empty = ""
 
 	// Проверяем наличие машины по EndpointURL
-	foundMachine, err := u.Repo.GetCncMachineByEndpointURL(req.EndpointURL)
+	foundMachine, err := u.MachineRepo.GetCncMachineByEndpointURL(req.EndpointURL)
 	fmt.Println(errors.Is(err, errors.ErrNotFound))
 	if err != nil && !errors.Is(err, errors.ErrNotFound) {
 		return empty, errors.NewAppError(errors.InternalServerErrorCode, errors.InternalServerError, err, false)
@@ -90,38 +96,68 @@ func (u *ConnectionUsecase) сreateConnection(req connection_models.CertificateC
 		}
 		conn, err := u.OpcService.GetConnectionByUUID(id)
 		if conn != nil {
-			if _, err = u.DisconnectByUUID(id); err != nil {
-				return empty, errors.NewAppError(errors.InternalServerErrorCode, "failed to disconnect old machine", err, false)
+			if _, eerr := u.DisconnectByUUID(id); eerr != nil {
+				if !errors.Is(eerr, errors.ErrNotFound) {
+					return empty, errors.NewAppError(errors.InternalServerErrorCode, "failed to disconnect old machine", err, false)
+				}
 			}
-		} else if err := u.Repo.DeleteCncMachine(id.String()); err != nil {
-			return empty, errors.NewAppError(errors.InternalServerErrorCode, "failed to delete old machine record", err, false)
-		}
+		} else {
+			if err := u.MachineRepo.DeleteCncMachine(id.String()); err != nil {
+				if !errors.Is(err, errors.ErrNotFound) {
+					return empty, errors.NewAppError(errors.InternalServerErrorCode, "failed to delete old machine record", err, false)
+				}
+			}
+			/*
+				if foundMachine.ConnectionType == "certificate" {
+					certInfo := *foundMachine.CertificateConnectionID
+					eerr := u.CertRepo.DeleteCertificateConnection(certInfo)
+					if !errors.Is(eerr, errors.ErrNotFound) {
+						return empty, errors.NewAppError(errors.InternalServerErrorCode, "failed to disconnect old machine", err, false)
+					}
+				}
 
+			*/
+
+		}
 	}
 
 	// Соединения нет — создаем новое
-	connID, err := u.OpcService.CreateConnection(req)
+	connID, err := u.OpcService.CreateCertificateConnection(req)
 	if err != nil {
 		return empty, errors.NewAppError(errors.InternalServerErrorCode, "failed to create connection for machine", err, false)
 	}
 
 	// Добавляем в БД
-	newMachine := entities.CncMachine{
-		UUID:         connID.String(),
-		EndpointURL:  req.EndpointURL,
-		Model:        req.Model,
-		Manufacturer: req.Manufacturer,
-		Status:       entities.ConnectionStatusConnected,
-		Interval:     int(req.Timeout.Seconds()),
+	newCertInfo := entities.CertificateConnection{
+		Certificate: req.Certificate,
+		Key:         req.Key,
+		Policy:      req.Policy,
+		Mode:        req.Mode,
 	}
 
-	machineUUID, err := u.Repo.CreateCncMachine(&newMachine)
+	certInfoID, err := u.CertRepo.CreateCertificateConnection(newCertInfo)
+	if err != nil {
+		return empty, errors.NewAppError(errors.InternalServerErrorCode, "failed to create certificate info record", err, false)
+	}
+
+	newMachine := entities.CncMachine{
+		UUID:                    connID.String(),
+		EndpointURL:             req.EndpointURL,
+		Model:                   req.Model,
+		Manufacturer:            req.Manufacturer,
+		Status:                  connection_models.ConnectionStatusConnected,
+		Interval:                int(req.Timeout.Seconds()),
+		ConnectionType:          "certificate",
+		CertificateConnectionID: &certInfoID,
+	}
+
+	machineUUID, err := u.MachineRepo.CreateCncMachine(newMachine)
 	if err != nil {
 		return empty, errors.NewAppError(errors.InternalServerErrorCode, "failed to create machine record", err, false)
 	}
 
 	// Проверяем, что машина добавлена
-	addedMachine, err := u.Repo.GetCncMachineByUUID(machineUUID)
+	addedMachine, err := u.MachineRepo.GetCncMachineByUUID(machineUUID)
 	if err != nil {
 		return empty, errors.NewAppError(errors.InternalServerErrorCode, "failed to check machine connection", err, false)
 	}
@@ -134,7 +170,7 @@ func (u *ConnectionUsecase) сreateConnection(req connection_models.CertificateC
 // DisconnectByUUID закрывает соединение по UUID
 func (u *ConnectionUsecase) DisconnectByUUID(id uuid.UUID) (*bool, *errors.AppError) {
 	var state = false
-	_, err := u.OpcService.GetConnectionByUUID(id)
+	info, err := u.OpcService.GetConnectionInfoByUUID(id)
 	if err != nil {
 		if errors.Is(err, errors.ErrNotFound) {
 			return nil, errors.NewAppError(errors.NotFoundErrorCode, "failed to find connection", err, false)
@@ -142,14 +178,36 @@ func (u *ConnectionUsecase) DisconnectByUUID(id uuid.UUID) (*bool, *errors.AppEr
 			return nil, errors.NewAppError(errors.InternalServerErrorCode, "failed to get connection", err, false)
 		}
 	}
+	if info.IsPolled {
+		if err := u.OpcService.StopPollingForMachine(id); err != nil {
+			log.Printf("Warning: failed to stop polling for machine %s: %v", id, err)
+		}
+	}
 
 	if err := u.OpcService.CloseConnection(id); err != nil {
 		return &state, errors.NewAppError(errors.InternalServerErrorCode, "failed to close connection", err, false)
 	}
 	state = true
-	err = u.Repo.DeleteCncMachine(id.String())
+
+	machine, err := u.MachineRepo.GetCncMachineByUUID(id.String())
 	if err != nil {
 		return &state, errors.NewAppError(errors.InternalServerErrorCode, "failed to delete machine record", err, false)
+	}
+	if machine.ConnectionType == "certificate" {
+		err = u.CertRepo.DeleteCertificateConnection(*machine.CertificateConnectionID)
+		if err != nil {
+			if !errors.Is(err, errors.ErrNotFound) {
+				return &state, errors.NewAppError(errors.InternalServerErrorCode, "failed to delete certificate record", err, false)
+			}
+
+		}
+	}
+
+	err = u.MachineRepo.DeleteCncMachine(id.String())
+	if err != nil {
+		if !errors.Is(err, errors.ErrNotFound) {
+			return &state, errors.NewAppError(errors.InternalServerErrorCode, "failed to delete machine record", err, false)
+		}
 	}
 
 	log.Printf("Successfully closed connection with UUID: %s", id)
@@ -165,7 +223,7 @@ func (u *ConnectionUsecase) DisconnectAll() (int, *errors.AppError) {
 
 	u.OpcService.CloseAll()
 
-	err := u.Repo.DeleteAllCncMachines()
+	err := u.MachineRepo.DeleteAllCncMachines()
 	if err != nil {
 		return empty, errors.NewAppError(errors.InternalServerErrorCode, "failed to delete machine records", err, false)
 	}
@@ -257,17 +315,38 @@ func (u *ConnectionUsecase) validateAnonymousRequest(request models.ConnectionRe
 // ----------------------------------------------------------------------------------------------------------------
 
 // NewCertificateConnectionFromRequest Конструктор из ConnectionRequest
-func NewCertificateConnectionFromRequest(req *models.ConnectionRequest) connection_models.CertificateConnection {
+func (u *ConnectionUsecase) NewCertificateConnectionFromRequest(req *models.ConnectionRequest) (connection_models.CertificateConnection, error) {
+	var empty connection_models.CertificateConnection
+
+	// Попытка распарсить сертификат (Base64 -> []byte)
+	parsedCert, err := u.OpcService.Base64ToBytes(req.Certificate)
+	if err != nil {
+		return empty, err
+	}
+
+	// Попытка распарсить ключ (Base64 -> []byte)
+	parsedKey, err := u.OpcService.Base64ToBytes(req.Key)
+	if err != nil {
+		return empty, err
+	}
+
+	// Валидация: всё же убедимся, что ключ и сертификат можно распарсить
+	_, cert, key := u.OpcService.LoadClientCredentialsBytes(parsedCert, parsedKey)
+	if cert == nil || key == nil {
+		return empty, errors.NewAppError(errors.InternalServerErrorCode, "invalid certificate or key content", nil, false)
+	}
+
+	// Успешное создание подключения
 	return connection_models.CertificateConnection{
 		EndpointURL:  req.EndpointURL,
-		Certificate:  req.Certificate,
-		Key:          req.Key,
+		Certificate:  parsedCert,
+		Key:          parsedKey,
 		Policy:       string(req.Policy),
 		Mode:         string(req.Mode),
 		Timeout:      time.Duration(req.Timeout) * time.Second,
 		Manufacturer: req.Manufacturer,
 		Model:        req.Model,
-	}
+	}, nil
 }
 
 // NewAnonymousConnectionFromRequest Конструктор из ConnectionRequest

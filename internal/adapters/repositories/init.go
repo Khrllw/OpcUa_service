@@ -3,7 +3,10 @@ package repositories
 import (
 	"fmt"
 	"log"
+	"opc_ua_service/internal/adapters/repositories/anonymous_connection"
+	"opc_ua_service/internal/adapters/repositories/certificate_connection"
 	"opc_ua_service/internal/adapters/repositories/cnc_machine"
+	"opc_ua_service/internal/adapters/repositories/password_connection"
 	"os"
 	"time"
 
@@ -16,7 +19,10 @@ import (
 )
 
 type Repository struct {
-	interfaces.Repository
+	interfaces.CncMachineRepository
+	interfaces.CertificateConnectionRepository
+	interfaces.PasswordConnectionRepository
+	interfaces.AnonymousConnectionRepository
 }
 
 func NewRepository(cfg *config.Config) (interfaces.Repository, error) {
@@ -54,6 +60,9 @@ func NewRepository(cfg *config.Config) (interfaces.Repository, error) {
 
 	return &Repository{
 		cnc_machine.NewCncMachineRepository(db),
+		certificate_connection.NewCertificateConnectionRepository(db),
+		password_connection.NewPasswordConnectionRepository(db),
+		anonymous_connection.NewAnonymousConnectionRepository(db),
 	}, nil
 
 }
@@ -63,6 +72,9 @@ func autoMigrate(db *gorm.DB) error {
 
 	// Удаляем таблицы в правильном порядке зависимостей
 	tables := []string{
+		"certificate_connection",
+		"anonymous_connection",
+		"password_connection",
 		"cnc_machine",
 	}
 

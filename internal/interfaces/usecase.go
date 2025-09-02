@@ -2,7 +2,9 @@ package interfaces
 
 import (
 	"github.com/google/uuid"
+	"opc_ua_service/internal/domain/entities"
 	"opc_ua_service/internal/domain/models"
+	connection_models "opc_ua_service/internal/domain/models/connection_models"
 	"opc_ua_service/pkg/errors"
 )
 
@@ -16,6 +18,8 @@ type ConnectionUsecase interface {
 	ConnectWithPassword(request models.ConnectionRequest) (models.UUIDResponse, *errors.AppError)
 	ConnectWithCertificate(request models.ConnectionRequest) (models.UUIDResponse, *errors.AppError)
 
+	NewCertificateConnectionFromRequest(req *models.ConnectionRequest) (connection_models.CertificateConnection, error)
+
 	DisconnectByUUID(id uuid.UUID) (*bool, *errors.AppError)
 	DisconnectAll() (int, *errors.AppError)
 
@@ -23,6 +27,7 @@ type ConnectionUsecase interface {
 
 	GetConnectionState(id uuid.UUID) (*models.ConnectionInfoResponse, *errors.AppError)
 	CleanupIdleConnections(maxIdleMinutes int) int
+	RestoreConnection(machine entities.CncMachine) (*models.ConnectionInfo, *errors.AppError)
 }
 
 type PollingUsecase interface {

@@ -72,8 +72,16 @@ func (oc *OpcConnector) FindOpenConnection(id uuid.UUID) *models.ConnectionInfo 
 	return info
 }
 
-// CreateConnection создаёт новое подключение и сохраняет его по sessionID
-func (oc *OpcConnector) CreateConnection(config connection_models.CertificateConnection) (*uuid.UUID, error) {
+func (oc *OpcConnector) CreateAnonymousConnection(config connection_models.AnonymousConnection) (*uuid.UUID, error) {
+	return nil, nil
+}
+
+func (oc *OpcConnector) CreatePasswordConnection(config connection_models.PasswordConnection) (*uuid.UUID, error) {
+	return nil, nil
+}
+
+// CreateConnection создаёт новое подключение и сохраняет его по UUID
+func (oc *OpcConnector) CreateCertificateConnection(config connection_models.CertificateConnection) (*uuid.UUID, error) {
 	// Создаем новое подключение
 	conn, err := oc.ConnectWithCertificate(config)
 	if err != nil {
