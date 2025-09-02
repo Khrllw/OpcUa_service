@@ -307,7 +307,7 @@ func (m *HeidenhainTNC640Data) ConvertNodeToMachineData(nodeID string, v any) er
 // ToResponse TODO: Все что закомменчено хз то это
 func (m *HeidenhainTNC640Data) ToResponse() models.MachineDataResponse {
 	resp := models.MachineDataResponse{
-		MachineId: *m.Machine.SerialNumber,
+		MachineId: getStringOrDefault(m.Machine.SerialNumber, ""),
 		Timestamp: 0,
 		//IsEnabled:          false,
 		//IsEmergency:        false,
@@ -320,10 +320,10 @@ func (m *HeidenhainTNC640Data) ToResponse() models.MachineDataResponse {
 		FeedOverride: m.Machine.FeedOverride.Value,
 		//FeedRate: 0,
 		//PartsCount:    0,
-		PowerOnTime:   formatTime(*m.Machine.MachineUpTime),
-		OperatingTime: formatTime(*m.Machine.ControlUpTime),
+		PowerOnTime:   formatTime(m.Machine.MachineUpTime),
+		OperatingTime: formatTime(m.Machine.ControlUpTime),
 		//CycleTime:     0,
-		CuttingTime: formatTime(*m.Machine.ProgramExecutionTime),
+		CuttingTime: formatTime(m.Machine.ProgramExecutionTime),
 		//SpindleInfos:
 		//CountourFeedRate:
 		//JogOverride:
@@ -364,13 +364,45 @@ func (m *HeidenhainTNC640Data) ToJSON() string {
 	return string(bytes)
 }
 
-func formatTime(ms float64) string {
-	d := time.Duration(ms * float64(time.Millisecond))
+func formatTime(ms *float64) string {
+	if ms != nil {
+		d := time.Duration(*ms * float64(time.Millisecond))
 
-	hours := int(d.Hours())
-	minutes := int(d.Minutes()) % 60
-	secs := int(d.Seconds()) % 60
+		hours := int(d.Hours())
+		minutes := int(d.Minutes()) % 60
+		secs := int(d.Seconds()) % 60
 
-	return fmt.Sprintf("%02d:%02d:%02d", hours, minutes, secs)
+		return fmt.Sprintf("%02d:%02d:%02d", hours, minutes, secs)
+	}
+	return ""
+}
 
+// ---- вспомогательные функции ----
+
+func getStringOrDefault(ptr *string, defaultVal string) string {
+	if ptr != nil {
+		return *ptr
+	}
+	return defaultVal
+}
+
+func getStringOrDefaultPointer(ptr interface{}, defaultVal string) string {
+	if ptr != nil {
+		return fmt.Sprintf("%v", ptr) // безопасно преобразуем в строку
+	}
+	return defaultVal
+}
+
+func getFloatOrDefault(ptr *float64, defaultVal float64) float64 {
+	if ptr != nil {
+		return *ptr
+	}
+	return defaultVal
+}
+
+func formatTimeSafe(ptr *int64) int64 {
+	if ptr != nil {
+		return *ptr
+	}
+	return 0
 }

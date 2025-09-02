@@ -9,7 +9,7 @@ import (
 )
 
 // CreateCncMachine создает новую запись о станке
-func (r *CncMachineRepositoryImpl) CreateCncMachine(cnc *entities.CncMachine) (string, error) {
+func (r *CncMachineRepositoryImpl) CreateCncMachine(cnc entities.CncMachine) (string, error) {
 	op := "repo.CncMachine.CreateCncMachine"
 
 	err := r.db.Clauses(clause.Returning{}).Create(&cnc).Error
@@ -25,7 +25,7 @@ func (r *CncMachineRepositoryImpl) GetCncMachineByEndpointURL(endpoint string) (
 	op := "repo.CncMachine.GetCncMachineByEndpointURL"
 
 	var cnc entities.CncMachine
-	err := r.db.First(&cnc, "endpoint_url = ?", endpoint).Error
+	err := r.db.Preload("CertificateConnection").Preload("PasswordConnection").Preload("AnonymousConnection").First(&cnc, "endpoint_url = ?", endpoint).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return entities.CncMachine{}, errors.NewDBError(op, errors.ErrNotFound)
@@ -41,7 +41,7 @@ func (r *CncMachineRepositoryImpl) GetCncMachineByUUID(id string) (entities.CncM
 	op := "repo.CncMachine.GetCncMachineByUUID"
 
 	var cnc entities.CncMachine
-	err := r.db.First(&cnc, "UUID = ?", id).Error
+	err := r.db.Preload("CertificateConnection").Preload("PasswordConnection").Preload("AnonymousConnection").First(&cnc, "UUID = ?", id).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return entities.CncMachine{}, errors.NewDBError(op, fmt.Errorf("%s: %w", op, errors.ErrNotFound))
@@ -93,7 +93,7 @@ func (r *CncMachineRepositoryImpl) GetAllCncMachines() ([]entities.CncMachine, e
 	op := "repo.CncMachine.GetAllCncMachines"
 
 	var list []entities.CncMachine
-	if err := r.db.Find(&list).Error; err != nil {
+	if err := r.db.Preload("CertificateConnection").Preload("PasswordConnection").Preload("AnonymousConnection").Find(&list).Error; err != nil {
 		return nil, errors.NewDBError(op, err)
 	}
 

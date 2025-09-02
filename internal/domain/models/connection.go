@@ -26,6 +26,10 @@ type DisconnectRequest struct {
 	UUID string `json:"UUID" binding:"required"`
 }
 
+type UUIDRequest struct {
+	UUID string `json:"UUID" binding:"required"`
+}
+
 // CheckConnectionRequest - проверка соединения
 type CheckConnectionRequest struct {
 	UUID string `json:"UUID" binding:"required"`

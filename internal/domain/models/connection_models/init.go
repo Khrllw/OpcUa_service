@@ -43,6 +43,17 @@ func (a ConnectionTypeEnum) Validate() error {
 
 // ---------------------------------------------------------------------------------------------------------------
 
+// ConnectionStatusEnum - статусы подключения к машине
+type ConnectionStatusEnum string
+
+const (
+	ConnectionStatusConnected    ConnectionStatusEnum = "connected"
+	ConnectionStatusDisconnected ConnectionStatusEnum = "disconnected"
+	ConnectionStatusPolled       ConnectionStatusEnum = "polled"
+)
+
+// ---------------------------------------------------------------------------------------------------------------
+
 func (c ConnectionConfig) MarshalJSON() ([]byte, error) {
 	type wrapper struct {
 		Type   string      `json:"type"`

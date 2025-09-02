@@ -30,7 +30,7 @@ func (o *OpcCommunicator) StartPollingForMachine(id uuid.UUID) error {
 	o.mu.Unlock()
 
 	interval := connInfo.Config.Config.GetTimeout()
-
+	connInfo.IsPolled = true
 	go func() {
 		ticker := time.NewTicker(interval)
 		defer ticker.Stop()
@@ -39,6 +39,7 @@ func (o *OpcCommunicator) StartPollingForMachine(id uuid.UUID) error {
 			select {
 			case <-ctx.Done():
 				log.Printf("Stopped polling for machine %s", connInfo.SessionID)
+				connInfo.IsPolled = false
 				return
 			case <-ticker.C:
 				nodes := connInfo.GetRelevantNodeIDs()

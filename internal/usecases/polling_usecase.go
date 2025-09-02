@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"github.com/google/uuid"
 	"net/http"
-	"opc_ua_service/internal/domain/entities"
 	"opc_ua_service/internal/domain/models"
+	connection_models "opc_ua_service/internal/domain/models/connection_models"
 	"opc_ua_service/pkg/errors"
 
 	"opc_ua_service/internal/interfaces"
@@ -59,7 +59,7 @@ func (u *PollingUsecase) StartPollingMachine(machineID uuid.UUID) *errors.AppErr
 		}
 	}
 	updateMap := map[string]interface{}{
-		"status": entities.ConnectionStatusPolled,
+		"status": connection_models.ConnectionStatusPolled,
 	}
 
 	_, err = u.Repo.UpdateCncMachine(machineID.String(), updateMap)
@@ -80,7 +80,7 @@ func (u *PollingUsecase) StopPollingMachine(machineID uuid.UUID) *errors.AppErro
 		}
 	}
 	updateMap := map[string]interface{}{
-		"status": entities.ConnectionStatusConnected,
+		"status": connection_models.ConnectionStatusConnected,
 	}
 
 	_, err = u.Repo.UpdateCncMachine(machineID.String(), updateMap)

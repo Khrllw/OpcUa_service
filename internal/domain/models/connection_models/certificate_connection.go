@@ -7,8 +7,8 @@ import (
 // CertificateConnection конфигурация подключения OPC UA по сертификату
 type CertificateConnection struct {
 	EndpointURL  string
-	Certificate  string
-	Key          string
+	Certificate  []byte
+	Key          []byte
 	Policy       string
 	Mode         string
 	Timeout      time.Duration
