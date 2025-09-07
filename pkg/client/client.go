@@ -6,18 +6,19 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"opc_ua_service/pkg/swagger"
 
 	"opc_ua_service/internal/domain/models"
 )
 
 // ClientAPI определяет интерфейс для взаимодействия с сервисом
 type ClientAPI interface {
-	CreateConnection(ctx context.Context, req *models.ConnectionRequest) (*models.UUIDResponseSwagger, *http.Response, error)
-	GetConnectionPool(ctx context.Context) (*models.GetConnectionPoolResponseSwagger, *http.Response, error)
-	DeleteConnection(ctx context.Context, req *models.UUIDRequest) (*models.DisconnectResponseSwagger, *http.Response, error)
-	CheckConnection(ctx context.Context, req *models.CheckConnectionRequest) (*models.CheckConnectionResponseSwagger, *http.Response, error)
-	StartPolling(ctx context.Context, req *models.UUIDRequest) (*models.PollingResponseSwagger, *http.Response, error)
-	StopPolling(ctx context.Context, req *models.UUIDRequest) (*models.PollingResponseSwagger, *http.Response, error)
+	CreateConnection(ctx context.Context, req *models.ConnectionRequest) (*swagger.UUIDResponse, *http.Response, error)
+	GetConnectionPool(ctx context.Context) (*swagger.GetConnectionPoolResponse, *http.Response, error)
+	DeleteConnection(ctx context.Context, req *models.UUIDRequest) (*swagger.DisconnectResponse, *http.Response, error)
+	CheckConnection(ctx context.Context, req *models.CheckConnectionRequest) (*swagger.CheckConnectionResponse, *http.Response, error)
+	StartPolling(ctx context.Context, req *models.UUIDRequest) (*swagger.PollingResponse, *http.Response, error)
+	StopPolling(ctx context.Context, req *models.UUIDRequest) (*swagger.PollingResponse, *http.Response, error)
 }
 
 // Client реализует интерфейс ClientAPI
@@ -33,7 +34,7 @@ func NewClient(host string) ClientAPI {
 }
 
 // CreateConnection создает новое подключение
-func (c *Client) CreateConnection(ctx context.Context, req *models.ConnectionRequest) (*models.UUIDResponseSwagger, *http.Response, error) {
+func (c *Client) CreateConnection(ctx context.Context, req *models.ConnectionRequest) (*swagger.UUIDResponse, *http.Response, error) {
 	const endpoint = "/api/v1/connect"
 
 	reqBody, err := json.Marshal(req)
@@ -51,7 +52,7 @@ func (c *Client) CreateConnection(ctx context.Context, req *models.ConnectionReq
 		return nil, httpResp, err
 	}
 
-	var resp models.UUIDResponseSwagger
+	var resp swagger.UUIDResponse
 	if err := json.Unmarshal(body, &resp); err != nil {
 
 		return nil, httpResp, fmt.Errorf("failed to unmarshal response: %w", err)
@@ -61,7 +62,7 @@ func (c *Client) CreateConnection(ctx context.Context, req *models.ConnectionReq
 }
 
 // GetConnectionPool возвращает пул активных соединений
-func (c *Client) GetConnectionPool(ctx context.Context) (*models.GetConnectionPoolResponseSwagger, *http.Response, error) {
+func (c *Client) GetConnectionPool(ctx context.Context) (*swagger.GetConnectionPoolResponse, *http.Response, error) {
 	const endpoint = "/api/v1/connect"
 
 	httpReq, err := c.service.createRequestJSONWithContext(ctx, http.MethodGet, endpoint, nil, nil)
@@ -74,7 +75,7 @@ func (c *Client) GetConnectionPool(ctx context.Context) (*models.GetConnectionPo
 		return nil, httpResp, err
 	}
 
-	var resp models.GetConnectionPoolResponseSwagger
+	var resp swagger.GetConnectionPoolResponse
 	if err := json.Unmarshal(body, &resp); err != nil {
 		return nil, httpResp, fmt.Errorf("failed to unmarshal response: %w", err)
 	}
@@ -83,7 +84,7 @@ func (c *Client) GetConnectionPool(ctx context.Context) (*models.GetConnectionPo
 }
 
 // DeleteConnection отключает сессию по UUID
-func (c *Client) DeleteConnection(ctx context.Context, req *models.UUIDRequest) (*models.DisconnectResponseSwagger, *http.Response, error) {
+func (c *Client) DeleteConnection(ctx context.Context, req *models.UUIDRequest) (*swagger.DisconnectResponse, *http.Response, error) {
 	const endpoint = "/api/v1/connect"
 
 	reqBody, err := json.Marshal(req)
@@ -101,7 +102,7 @@ func (c *Client) DeleteConnection(ctx context.Context, req *models.UUIDRequest) 
 		return nil, httpResp, err
 	}
 
-	var resp models.DisconnectResponseSwagger
+	var resp swagger.DisconnectResponse
 	if err := json.Unmarshal(body, &resp); err != nil {
 		return nil, httpResp, fmt.Errorf("failed to unmarshal response: %w", err)
 	}
@@ -110,7 +111,7 @@ func (c *Client) DeleteConnection(ctx context.Context, req *models.UUIDRequest) 
 }
 
 // CheckConnection проверяет состояние соединения
-func (c *Client) CheckConnection(ctx context.Context, req *models.CheckConnectionRequest) (*models.CheckConnectionResponseSwagger, *http.Response, error) {
+func (c *Client) CheckConnection(ctx context.Context, req *models.CheckConnectionRequest) (*swagger.CheckConnectionResponse, *http.Response, error) {
 	const endpoint = "api/v1/connect/check"
 
 	reqBody, err := json.Marshal(req)
@@ -128,7 +129,7 @@ func (c *Client) CheckConnection(ctx context.Context, req *models.CheckConnectio
 		return nil, httpResp, err
 	}
 
-	var resp models.CheckConnectionResponseSwagger
+	var resp swagger.CheckConnectionResponse
 	if err := json.Unmarshal(body, &resp); err != nil {
 		return nil, httpResp, fmt.Errorf("failed to unmarshal response: %w", err)
 	}
@@ -137,7 +138,7 @@ func (c *Client) CheckConnection(ctx context.Context, req *models.CheckConnectio
 }
 
 // StartPolling запускает опрос OPC UA по UUID станка
-func (c *Client) StartPolling(ctx context.Context, req *models.UUIDRequest) (*models.PollingResponseSwagger, *http.Response, error) {
+func (c *Client) StartPolling(ctx context.Context, req *models.UUIDRequest) (*swagger.PollingResponse, *http.Response, error) {
 	const endpoint = "/api/v1/polling/start"
 
 	reqBody, err := json.Marshal(req)
@@ -155,7 +156,7 @@ func (c *Client) StartPolling(ctx context.Context, req *models.UUIDRequest) (*mo
 		return nil, httpResp, err
 	}
 
-	var resp models.PollingResponseSwagger
+	var resp swagger.PollingResponse
 	if err := json.Unmarshal(body, &resp); err != nil {
 		return nil, httpResp, fmt.Errorf("failed to unmarshal response: %w", err)
 	}
@@ -164,7 +165,7 @@ func (c *Client) StartPolling(ctx context.Context, req *models.UUIDRequest) (*mo
 }
 
 // StopPolling останавливает опрос OPC UA по UUID станка
-func (c *Client) StopPolling(ctx context.Context, req *models.UUIDRequest) (*models.PollingResponseSwagger, *http.Response, error) {
+func (c *Client) StopPolling(ctx context.Context, req *models.UUIDRequest) (*swagger.PollingResponse, *http.Response, error) {
 	const endpoint = "/api/v1/polling/stop"
 
 	reqBody, err := json.Marshal(req)
@@ -182,7 +183,7 @@ func (c *Client) StopPolling(ctx context.Context, req *models.UUIDRequest) (*mod
 		return nil, httpResp, err
 	}
 
-	var resp models.PollingResponseSwagger
+	var resp swagger.PollingResponse
 	if err := json.Unmarshal(body, &resp); err != nil {
 		return nil, httpResp, fmt.Errorf("failed to unmarshal response: %w", err)
 	}

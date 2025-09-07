@@ -14,7 +14,7 @@ type KafkaProducer struct {
 }
 
 // NewKafkaProducer создает новый экземпляр продюсера Kafka
-func NewKafkaProducer(cfg *config.Config) (interfaces.DataProducer, error) {
+func NewKafkaProducer(cfg *config.Config) (interfaces.KafkaService, error) {
 	writer := &kafka.Writer{
 		Addr:     kafka.TCP(cfg.App.Kafka.KafkaBrokers...),
 		Topic:    cfg.App.Kafka.KafkaTopic,

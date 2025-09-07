@@ -9,7 +9,7 @@ import (
 	"github.com/google/uuid"
 	"opc_ua_service/internal/domain/models"
 	connection_models "opc_ua_service/internal/domain/models/connection_models"
-	"opc_ua_service/internal/domain/models/opc_custom"
+	"opc_ua_service/pkg/opc_custom"
 	"time"
 )
 
@@ -20,20 +20,14 @@ type OpcService interface {
 }
 
 type CertificateManagerService interface {
-	SelectCertificateEndpoint(ctx context.Context, endpointURL string) (*ua.EndpointDescription, string)
+	SelectCertificateEndpoint(ctx context.Context, endpointURL string) (*ua.EndpointDescription, string, error)
 	PrintCertInfo(label string, cert *x509.Certificate)
 	VerifyKeyMatchesCert(cert *x509.Certificate, key *rsa.PrivateKey) error
 
-	LoadPrivateKey(keyPath string) ([]byte, *rsa.PrivateKey, error)
-	LoadPrivateKeyBytes(data []byte) (*rsa.PrivateKey, error)
+	DecodeClientCredentials(certBytes, keyBytes []byte) ([]byte, *x509.Certificate, *rsa.PrivateKey)
+	DecodePrivateKey(data []byte) (*rsa.PrivateKey, error)
+	DecodeCertificate(data []byte) (*x509.Certificate, error)
 
-	LoadCertificate(certPath string) ([]byte, *x509.Certificate, error)
-	LoadServerCertificate(certPath string) *x509.Certificate
-	LoadCertificateBytes(data []byte) (*x509.Certificate, error)
-
-	LoadClientCredentials(certPath, keyPath string) ([]byte, *x509.Certificate, *rsa.PrivateKey)
-	LoadClientCredentialsBytes(certBytes, keyBytes []byte) ([]byte, *x509.Certificate, *rsa.PrivateKey)
-	LoadClientCredentialsBase64(certBase64, keyBase64 string) ([]byte, *x509.Certificate, *rsa.PrivateKey)
 	BuildClientOptions(endpoint *ua.EndpointDescription, policyID string, certBytes []byte, key *rsa.PrivateKey) []client.Option
 }
 

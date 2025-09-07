@@ -12,20 +12,20 @@ import (
 func (cm *CertificateManager) analyzeCertificate(filePath string) error {
 	data, err := os.ReadFile(filePath)
 	if err != nil {
+		cm.logger.Error("Error reading file %s: %v", filePath, err)
 		return fmt.Errorf("error reading file: %w", err)
 	}
 
-	fmt.Printf("\n=== Analyzing certificate file: %s ===\n", filePath)
-	fmt.Printf("File size: %d bytes\n", len(data))
+	cm.logger.Info("=== Analyzing certificate file: %s ===", filePath)
+	cm.logger.Info("File size: %d bytes", len(data))
 
 	// Hex dump of first 128 bytes
-	fmt.Println("\nFirst 128 bytes (hex):")
-	fmt.Println(hex.Dump(data[:min(128, len(data))]))
+	cm.logger.Info("First 128 bytes (hex):\n%s", hex.Dump(data[:minim(128, len(data))]))
 
 	// Try to parse as DER
 	cert, err := x509.ParseCertificate(data)
 	if err == nil {
-		fmt.Println("\nFile recognized as DER certificate")
+		cm.logger.Info("File recognized as DER certificate")
 		cm.printCertDetails(cert)
 		return nil
 	}
@@ -33,7 +33,7 @@ func (cm *CertificateManager) analyzeCertificate(filePath string) error {
 	// Try to parse as PEM
 	block, _ := pem.Decode(data)
 	if block != nil {
-		fmt.Printf("\nFile contains PEM block: %s\n", block.Type)
+		cm.logger.Info("File contains PEM block: %s", block.Type)
 		if block.Type == "CERTIFICATE" {
 			cert, err := x509.ParseCertificate(block.Bytes)
 			if err == nil {
@@ -41,32 +41,38 @@ func (cm *CertificateManager) analyzeCertificate(filePath string) error {
 				return nil
 			}
 		}
-		fmt.Println("PEM block content (hex):")
-		fmt.Println(hex.Dump(block.Bytes[:min(128, len(block.Bytes))]))
+		cm.logger.Info("PEM block content (hex):\n%s", hex.Dump(block.Bytes[:minim(128, len(block.Bytes))]))
 		return nil
 	}
 
-	fmt.Println("\nFile is not recognized as DER or PEM certificate")
-	fmt.Println("Full hex dump:")
-	fmt.Println(hex.Dump(data))
+	cm.logger.Info("File is not recognized as DER or PEM certificate")
+	cm.logger.Info("Full hex dump:\n%s", hex.Dump(data))
 	return nil
 }
 
 // printCertDetails выводит основные поля сертификата
 func (cm *CertificateManager) printCertDetails(cert *x509.Certificate) {
-	fmt.Println("\nCertificate details:")
-	fmt.Printf("Subject: %s\n", cert.Subject)
-	fmt.Printf("Issuer: %s\n", cert.Issuer)
-	fmt.Printf("Serial Number: %s\n", cert.SerialNumber)
-	fmt.Printf("Valid From: %s\n", cert.NotBefore)
-	fmt.Printf("Valid Until: %s\n", cert.NotAfter)
-	fmt.Printf("Signature Algorithm: %s\n", cert.SignatureAlgorithm)
-	fmt.Printf("Public Key Algorithm: %s\n", cert.PublicKeyAlgorithm)
+	cm.logger.Info("Certificate details:")
+	cm.logger.Info("Subject: %s", cert.Subject)
+	cm.logger.Info("Issuer: %s", cert.Issuer)
+	cm.logger.Info("Serial Number: %s", cert.SerialNumber)
+	cm.logger.Info("Valid From: %s", cert.NotBefore)
+	cm.logger.Info("Valid Until: %s", cert.NotAfter)
+	cm.logger.Info("Signature Algorithm: %s", cert.SignatureAlgorithm)
+	cm.logger.Info("Public Key Algorithm: %s", cert.PublicKeyAlgorithm)
 
 	if len(cert.URIs) > 0 {
-		fmt.Println("\nURIs:")
+		cm.logger.Info("URIs:")
 		for _, uri := range cert.URIs {
-			fmt.Printf("- %s\n", uri)
+			cm.logger.Info("- %s", uri)
 		}
 	}
+}
+
+// minim вспомогательная функция для minim
+func minim(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
 }

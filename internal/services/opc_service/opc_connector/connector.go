@@ -9,8 +9,9 @@ import (
 	"log"
 	"opc_ua_service/internal/domain/models"
 	connection_models "opc_ua_service/internal/domain/models/connection_models"
-	_ "opc_ua_service/internal/domain/models/opc_custom"
 	"opc_ua_service/internal/interfaces"
+	"opc_ua_service/internal/middleware/logging"
+	_ "opc_ua_service/pkg/opc_custom"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -22,13 +23,15 @@ type OpcConnector struct {
 	stats       models.ConnectorStats
 	shutdown    chan struct{}
 	certManager interfaces.CertificateManagerService
+	logger      *logging.Logger
 }
 
-func NewOpcConnector(certManager interfaces.CertificateManagerService) interfaces.OpcConnectorService {
+func NewOpcConnector(certManager interfaces.CertificateManagerService, logger *logging.Logger) interfaces.OpcConnectorService {
 	connector := &OpcConnector{
 		connections: make(map[uuid.UUID]*models.ConnectionInfo),
 		shutdown:    make(chan struct{}),
 		certManager: certManager,
+		logger:      logger.WithPrefix("CONNECTOR"),
 	}
 	go connector.healthCheckWorker()
 	return connector
@@ -80,13 +83,14 @@ func (oc *OpcConnector) CreatePasswordConnection(config connection_models.Passwo
 	return nil, nil
 }
 
-// CreateConnection создаёт новое подключение и сохраняет его по UUID
+// CreateCertificateConnection создаёт новое подключение и сохраняет его по UUID
 func (oc *OpcConnector) CreateCertificateConnection(config connection_models.CertificateConnection) (*uuid.UUID, error) {
 	// Создаем новое подключение
 	conn, err := oc.ConnectWithCertificate(config)
 	if err != nil {
 		atomic.AddInt64(&oc.stats.FailedConnections, 1)
-		return nil, fmt.Errorf("failed to create connection: %w", err)
+		log.Println(err)
+		return nil, err
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())

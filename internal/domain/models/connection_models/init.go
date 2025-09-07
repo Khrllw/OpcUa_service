@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/go-playground/validator/v10"
+	"net/url"
 	"time"
 )
 
@@ -103,4 +104,9 @@ func (c *ConnectionConfig) UnmarshalJSON(data []byte) error {
 	}
 
 	return nil
+}
+
+func (c ConnectionConfig) EndpointURLHostPort() string {
+	u, _ := url.Parse(c.Config.GetEndpointURL())
+	return fmt.Sprintf("%s:%s", u.Hostname(), u.Port())
 }

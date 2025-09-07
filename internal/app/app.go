@@ -78,17 +78,18 @@ func InvokeHttpServer(lc fx.Lifecycle, h http.Handler) {
 }
 
 // InvokeGracefulShutdown обеспечивает корректное завершение работы сервисов
-func InvokeGracefulShutdown(lc fx.Lifecycle, connector interfaces.OpcService, producer interfaces.DataProducer) {
+func InvokeGracefulShutdown(lc fx.Lifecycle, connector interfaces.OpcService, producer interfaces.KafkaService) {
 	lc.Append(fx.Hook{
 		OnStop: func(ctx context.Context) error {
-			log.Println("Корректное завершение работы сервисов...")
+			log.Println("Gracefully stopping all services...")
 			connector.CloseAll()
-			//communicator.CloseAll()
+
 			if err := producer.Close(); err != nil {
-				log.Printf("Ошибка при закрытии Kafka продюсера: %v", err)
+				log.Printf("Error closing Kafka producer: %v", err)
 				return err
 			}
-			log.Println("Все сервисы успешно остановлены.")
+
+			log.Println("All services have been stopped successfully.")
 			return nil
 		},
 	})
@@ -119,14 +120,12 @@ var ServiceModule = fx.Module("service_module",
 	fx.Provide(opc_service.NewOpcService),
 )
 
-var RepositoryModule = fx.Module("postgres_module",
+var RepositoryModule = fx.Module("repository_module",
 	fx.Provide(repositories.NewRepository),
 )
 
 var UsecaseModule = fx.Module("usecases_module",
-	fx.Provide(
-		usecases.NewUsecases,
-	),
+	fx.Provide(usecases.NewUsecases),
 )
 
 func intToUint(c int) uint {
@@ -151,18 +150,21 @@ func InvokeRestoreConnections(lc fx.Lifecycle, uc interfaces.Usecases, dbRepo in
 				logger.Info("No saved connections found to restore.")
 				return nil
 			}
+			go func() {
+				for _, machine := range machines {
+					logger.Info("Attempting to restore connection", "UUID", machine.UUID, "model", machine.Model, "endpoint", machine.EndpointURL)
 
-			for _, machine := range machines {
-				logger.Info("Attempting to restore connection", "UUID", machine.UUID, "model", machine.Model, "endpoint", machine.EndpointURL)
+					connInfo, _ := uc.RestoreConnection(machine)
 
-				connInfo, _ := uc.RestoreConnection(machine)
-
-				if connInfo != nil {
-					logger.Info("Connection restored successfully in pool", "UUID", machine.UUID)
-				} else {
-					logger.Warn("Connection restored in pool but is unhealthy. Will retry in background.", "UUID", machine.UUID)
+					if connInfo != nil && connInfo.IsHealthy {
+						logger.Info("Connection restored successfully in pool", "UUID", machine.UUID)
+					} else if connInfo != nil && !connInfo.IsHealthy {
+						logger.Warn("Connection restored in pool but is unhealthy. Will retry in background.", "UUID", machine.UUID)
+					} else {
+						logger.Warn("Connection could not be restored", "UUID", machine.UUID)
+					}
 				}
-			}
+			}()
 			return nil
 		},
 	})

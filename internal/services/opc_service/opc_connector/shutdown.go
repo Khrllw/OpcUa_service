@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/google/uuid"
-	"log"
 	"opc_ua_service/internal/domain/models"
 	"os"
 	"os/signal"
@@ -22,7 +21,7 @@ func (oc *OpcConnector) SetupSignalHandler() context.Context {
 	go func() {
 		select {
 		case sig := <-sigs:
-			log.Printf("Signal %s received, shutting down...", sig)
+			oc.logger.Info("Signal %s received, shutting down...", sig)
 			cancel()
 			oc.Shutdown()
 		case <-oc.shutdown:
@@ -56,7 +55,7 @@ func (oc *OpcConnector) CloseAll() {
 		info.Mu.Lock()
 		ctxClose, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 		if err := info.Conn.Close(ctxClose); err != nil {
-			log.Printf("Failed to close connection %s: %v", info.SessionID, err)
+			oc.logger.Error("Failed to close connection %s: %v", info.SessionID, err)
 		}
 		cancel()
 		info.Cancel()
@@ -77,7 +76,7 @@ func (oc *OpcConnector) CloseConnection(id uuid.UUID) error {
 	atomic.AddInt64(&oc.stats.PoolSize, -1)
 	oc.mu.Unlock()
 
-	// 2️⃣ Закрываем соединение вне Lock
+	// Закрываем соединение вне Lock
 	info.Mu.Lock()
 	defer info.Mu.Unlock()
 
@@ -90,6 +89,6 @@ func (oc *OpcConnector) CloseConnection(id uuid.UUID) error {
 
 	info.Cancel()
 
-	log.Printf("Connection with UUID %s closed successfully", id)
+	oc.logger.Info("Connection with UUID %s closed successfully", id)
 	return nil
 }

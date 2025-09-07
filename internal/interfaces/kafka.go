@@ -1,9 +1,11 @@
 package interfaces
 
-type Kafka interface {
-	KafkaManagerService
-}
+import (
+	"context"
+)
 
-type KafkaManagerService interface {
-	SendData(topic string, data interface{}) error
+// KafkaService определяет контракт для отправки данных во внешние системы
+type KafkaService interface {
+	Produce(ctx context.Context, key, value []byte) error
+	Close() error
 }

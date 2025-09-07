@@ -5,7 +5,7 @@ import (
 	"github.com/awcullen/opcua/client"
 	"github.com/awcullen/opcua/ua"
 	models "opc_ua_service/internal/domain/models/connection_models"
-	"opc_ua_service/internal/domain/models/opc_custom"
+	"opc_ua_service/pkg/opc_custom"
 	"sync"
 	"time"
 )

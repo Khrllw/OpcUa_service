@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/google/uuid"
-	"log"
 	_ "opc_ua_service/internal/domain/models"
 	"opc_ua_service/pkg/errors"
 	"time"
@@ -38,24 +37,21 @@ func (o *OpcCommunicator) StartPollingForMachine(id uuid.UUID) error {
 		for {
 			select {
 			case <-ctx.Done():
-				log.Printf("Stopped polling for machine %s", connInfo.SessionID)
+				o.logger.Info("Stopped polling for machine %s", connInfo.SessionID)
 				connInfo.IsPolled = false
 				return
 			case <-ticker.C:
-				nodes := connInfo.GetRelevantNodeIDs()
-				if len(nodes) == 0 {
-					log.Printf("No relevant nodes for machine %s", connInfo.SessionID)
-					continue
-				}
-
 				data, err := o.ReadMachineData(id)
 				if err != nil {
-					log.Printf("Error polling machine %s: %v", connInfo.SessionID, err)
+					o.logger.Error("Error polling machine %s: %v", connInfo.SessionID, err)
 					continue
 				}
-
-				log.Printf("Polled data from machine %s:", connInfo.SessionID)
-				log.Printf("%s", data.ToJSON())
+				dataResponse := data.ToResponse()
+				dataJSON := data.ToJSON()
+				err = o.producer.Produce(context.Background(), []byte(dataResponse.MachineId), []byte(dataJSON))
+				if err != nil {
+					o.logger.Error("Failed to send data to Kafka", "machineId", dataResponse.MachineId, "error", err)
+				}
 			}
 		}
 	}()
@@ -74,6 +70,6 @@ func (o *OpcCommunicator) StopPollingForMachine(id uuid.UUID) error {
 	o.mu.Unlock()
 
 	cancel()
-	log.Printf("Polling manually stopped for machine %s", id)
+	o.logger.Info("Polling manually stopped for machine %s", id)
 	return nil
 }
