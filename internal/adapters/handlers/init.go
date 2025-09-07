@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/go-playground/validator/v10"
 	_ "github.com/swaggo/files"
 	"net/http"
 	"opc_ua_service/internal/config"
@@ -10,12 +9,6 @@ import (
 	"opc_ua_service/internal/middleware/logging"
 	"opc_ua_service/internal/middleware/swagger"
 )
-
-var validate *validator.Validate
-
-func init() {
-	validate = validator.New(validator.WithRequiredStructEnabled())
-}
 
 type Handler struct {
 	logger  *logging.Logger
@@ -38,12 +31,13 @@ func NewHandler(usecase interfaces.Usecases, parentLogger *logging.Logger, servi
 
 // ProvideRouter создает и настраивает маршруты
 func ProvideRouter(h *Handler, cfg *config.Config, swagCfg *swagger.Config) http.Handler {
+	gin.SetMode(cfg.App.GinMode)
 	r := gin.Default()
 
 	// Swagger-роутер
 	swagger.Setup(r, swagCfg)
 
-	// Logger
+	// LoggerMiddleware
 	r.Use(LoggingMiddleware(h.logger))
 
 	// Общая группа для API

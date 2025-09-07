@@ -86,7 +86,7 @@ func (l *Logger) log(level, msg string, fields ...interface{}) {
 		return
 	}
 
-	message := fmt.Sprintf("[%s] %s%s", level, l.prefix, msg)
+	message := fmt.Sprintf("[%s] %s %s", level, l.prefix, msg)
 
 	var builder strings.Builder
 	builder.WriteString(message)

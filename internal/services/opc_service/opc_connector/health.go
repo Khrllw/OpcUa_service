@@ -36,6 +36,21 @@ func (oc *OpcConnector) checkAllConnectionsHealth() {
 		info.Mu.Lock()
 		if info.IsPolled {
 			info.IsHealthy = oc.checkConnectionHealth(info.Conn)
+			if !info.IsHealthy {
+				/*
+					oc.logger.Warn("Connection is unhealthy. Attempting to reconnect...")
+					// Попытка переподключиться
+					newConn, err := oc.reconnect(info)
+					if err != nil {
+						oc.logger.Error("Failed to reconnect", "UUID", uuid, "error", err)
+					} else {
+						info.Conn = newConn
+						info.IsHealthy = true
+						oc.logger.Info("Reconnection successful", "UUID", uuid)
+					}
+				
+				*/
+			}
 		}
 		info.Mu.Unlock()
 	}

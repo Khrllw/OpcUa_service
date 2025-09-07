@@ -29,7 +29,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.DisconnectRequest"
+                            "$ref": "#/definitions/models.UUIDRequest"
                         }
                     }
                 ],
@@ -37,25 +37,25 @@
                     "200": {
                         "description": "Мониторинг запущен",
                         "schema": {
-                            "$ref": "#/definitions/models.PollingResponseSwagger"
+                            "$ref": "#/definitions/swagger.PollingResponseSwaggerExample"
                         }
                     },
                     "400": {
                         "description": "Неверный формат запроса",
                         "schema": {
-                            "$ref": "#/definitions/handlers.IncorrectFormatError"
+                            "$ref": "#/definitions/swagger.IncorrectFormatErrorSwaggerExample"
                         }
                     },
                     "404": {
                         "description": "Данные не найдены",
                         "schema": {
-                            "$ref": "#/definitions/handlers.NotFoundError"
+                            "$ref": "#/definitions/swagger.NotFoundErrorSwaggerExample"
                         }
                     },
                     "500": {
                         "description": "Внутренняя ошибка сервера",
                         "schema": {
-                            "$ref": "#/definitions/handlers.InternalServerError"
+                            "$ref": "#/definitions/swagger.InternalServerErrorSwaggerExample"
                         }
                     }
                 }
@@ -78,7 +78,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.DisconnectRequest"
+                            "$ref": "#/definitions/models.UUIDRequest"
                         }
                     }
                 ],
@@ -86,25 +86,25 @@
                     "200": {
                         "description": "Мониторинг запущен",
                         "schema": {
-                            "$ref": "#/definitions/models.PollingResponseSwagger"
+                            "$ref": "#/definitions/swagger.PollingResponseSwaggerExample"
                         }
                     },
                     "400": {
                         "description": "Неверный формат запроса",
                         "schema": {
-                            "$ref": "#/definitions/handlers.IncorrectFormatError"
+                            "$ref": "#/definitions/swagger.IncorrectFormatErrorSwaggerExample"
                         }
                     },
                     "404": {
                         "description": "Данные не найдены",
                         "schema": {
-                            "$ref": "#/definitions/handlers.NotFoundError"
+                            "$ref": "#/definitions/swagger.NotFoundErrorSwaggerExample"
                         }
                     },
                     "500": {
                         "description": "Внутренняя ошибка сервера",
                         "schema": {
-                            "$ref": "#/definitions/handlers.InternalServerError"
+                            "$ref": "#/definitions/swagger.InternalServerErrorSwaggerExample"
                         }
                     }
                 }
@@ -124,7 +124,7 @@
                     "200": {
                         "description": "Список активных соединений",
                         "schema": {
-                            "$ref": "#/definitions/models.GetConnectionPoolResponseSwagger"
+                            "$ref": "#/definitions/swagger.GetConnectionPoolResponseSwaggerExample"
                         }
                     }
                 }
@@ -156,25 +156,25 @@
                     "200": {
                         "description": "Успешное подключение",
                         "schema": {
-                            "$ref": "#/definitions/models.UUIDResponseSwagger"
+                            "$ref": "#/definitions/swagger.UUIDResponseSwaggerExample"
                         }
                     },
                     "400": {
                         "description": "Неверный формат запроса или некорректные данные",
                         "schema": {
-                            "$ref": "#/definitions/handlers.IncorrectFormatError"
+                            "$ref": "#/definitions/swagger.IncorrectFormatErrorSwaggerExample"
                         }
                     },
                     "401": {
                         "description": "Некорректные данные",
                         "schema": {
-                            "$ref": "#/definitions/handlers.IncorrectDataError"
+                            "$ref": "#/definitions/swagger.IncorrectDataErrorSwaggerExample"
                         }
                     },
                     "500": {
                         "description": "Внутренняя ошибка сервера",
                         "schema": {
-                            "$ref": "#/definitions/handlers.InternalServerError"
+                            "$ref": "#/definitions/swagger.InternalServerErrorSwaggerExample"
                         }
                     }
                 }
@@ -198,7 +198,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.DisconnectRequest"
+                            "$ref": "#/definitions/models.UUIDRequest"
                         }
                     }
                 ],
@@ -206,25 +206,25 @@
                     "200": {
                         "description": "Успешное отключение",
                         "schema": {
-                            "$ref": "#/definitions/models.DisconnectResponseSwagger"
+                            "$ref": "#/definitions/swagger.DisconnectResponseSwaggerExample"
                         }
                     },
                     "400": {
                         "description": "Неверный формат запроса",
                         "schema": {
-                            "$ref": "#/definitions/handlers.IncorrectFormatError"
+                            "$ref": "#/definitions/swagger.IncorrectFormatErrorSwaggerExample"
                         }
                     },
                     "404": {
                         "description": "Данные не найдены",
                         "schema": {
-                            "$ref": "#/definitions/handlers.NotFoundError"
+                            "$ref": "#/definitions/swagger.NotFoundErrorSwaggerExample"
                         }
                     },
                     "500": {
                         "description": "Внутренняя ошибка сервера",
                         "schema": {
-                            "$ref": "#/definitions/handlers.InternalServerError"
+                            "$ref": "#/definitions/swagger.InternalServerErrorSwaggerExample"
                         }
                     }
                 }
@@ -258,25 +258,25 @@
                     "200": {
                         "description": "Информация о подключении",
                         "schema": {
-                            "$ref": "#/definitions/models.CheckConnectionResponseSwagger"
+                            "$ref": "#/definitions/swagger.CheckConnectionResponseSwaggerExample"
                         }
                     },
                     "400": {
                         "description": "Неверный формат запроса",
                         "schema": {
-                            "$ref": "#/definitions/handlers.IncorrectFormatError"
+                            "$ref": "#/definitions/swagger.IncorrectFormatErrorSwaggerExample"
                         }
                     },
                     "404": {
                         "description": "Данные не найдены",
                         "schema": {
-                            "$ref": "#/definitions/handlers.NotFoundError"
+                            "$ref": "#/definitions/swagger.NotFoundErrorSwaggerExample"
                         }
                     },
                     "500": {
                         "description": "Внутренняя ошибка сервера",
                         "schema": {
-                            "$ref": "#/definitions/handlers.InternalServerError"
+                            "$ref": "#/definitions/swagger.InternalServerErrorSwaggerExample"
                         }
                     }
                 }
@@ -284,97 +284,53 @@
         }
     },
     "definitions": {
-        "handlers.IncorrectDataError": {
-            "type": "object",
-            "properties": {
-                "response": {
-                    "type": "object",
-                    "properties": {
-                        "code": {
-                            "type": "integer",
-                            "example": 401
-                        },
-                        "message": {
-                            "type": "string",
-                            "example": "Некорректные данные"
-                        }
-                    }
-                },
-                "status": {
-                    "description": "error",
-                    "type": "string",
-                    "example": "IncorrectDataError"
-                }
-            }
-        },
-        "handlers.IncorrectFormatError": {
-            "type": "object",
-            "properties": {
-                "response": {
-                    "type": "object",
-                    "properties": {
-                        "code": {
-                            "type": "integer",
-                            "example": 400
-                        },
-                        "message": {
-                            "type": "string",
-                            "example": "Неверный формат запроса"
-                        }
-                    }
-                },
-                "status": {
-                    "description": "error",
-                    "type": "string",
-                    "example": "IncorrectFormatError"
-                }
-            }
-        },
-        "handlers.InternalServerError": {
-            "type": "object",
-            "properties": {
-                "response": {
-                    "type": "object",
-                    "properties": {
-                        "code": {
-                            "type": "integer",
-                            "example": 500
-                        },
-                        "message": {
-                            "type": "string",
-                            "example": "Внутренняя ошибка сервера"
-                        }
-                    }
-                },
-                "status": {
-                    "description": "error",
-                    "type": "string",
-                    "example": "InternalServerError"
-                }
-            }
-        },
-        "handlers.NotFoundError": {
-            "type": "object",
-            "properties": {
-                "response": {
-                    "type": "object",
-                    "properties": {
-                        "code": {
-                            "type": "integer",
-                            "example": 404
-                        },
-                        "message": {
-                            "type": "string",
-                            "example": "Данные не найдены"
-                        }
-                    }
-                },
-                "status": {
-                    "description": "error",
-                    "type": "string",
-                    "example": "NotFoundError"
-                }
-            }
+        "internal_domain_models.ConnectionStatusEnum": {
+            "type": "string",
+            "enum": [
+                "OK",
+                "FAIL",
+                "NOT FOUND",
+                "HEALTHY",
+                "UNHEALTHY",
+                "CONNECTED",
+                "DISCONNECTED",
+                "ERROR",
+                "TIMEOUT",
+                "AUTH_FAILED"
+            ],
+            "x-enum-comments": {
+                "StatusAuthFailed": "Ошибка аутентификации",
+                "StatusConnected": "Соединение установлено",
+                "StatusDisconnected": "Соединение разорвано",
+                "StatusError": "Ошибка соединения",
+                "StatusHealthy": "Соединение здорово и работает",
+                "StatusTimeout": "Таймаут соединения",
+                "StatusUnhealthy": "Соединение есть, но есть проблемы"
+            },
+            "x-enum-descriptions": [
+                "",
+                "",
+                "",
+                "Соединение здорово и работает",
+                "Соединение есть, но есть проблемы",
+                "Соединение установлено",
+                "Соединение разорвано",
+                "Ошибка соединения",
+                "Таймаут соединения",
+                "Ошибка аутентификации"
+            ],
+            "x-enum-varnames": [
+                "StatusOK",
+                "StatusFail",
+                "StatusNotFound",
+                "StatusHealthy",
+                "StatusUnhealthy",
+                "StatusConnected",
+                "StatusDisconnected",
+                "StatusError",
+                "StatusTimeout",
+                "StatusAuthFailed"
+            ]
         },
         "models.CheckConnectionRequest": {
             "type": "object",
@@ -384,31 +340,6 @@
             "properties": {
                 "UUID": {
                     "type": "string"
-                }
-            }
-        },
-        "models.CheckConnectionResponseSwagger": {
-            "type": "object",
-            "properties": {
-                "response": {
-                    "type": "object",
-                    "properties": {
-                        "data": {
-                            "$ref": "#/definitions/models.ConnectionInfoResponse"
-                        },
-                        "message": {
-                            "type": "string",
-                            "example": "Successfully get connection info"
-                        },
-                        "type": {
-                            "type": "string",
-                            "example": "object"
-                        }
-                    }
-                },
-                "status": {
-                    "type": "string",
-                    "example": "ok"
                 }
             }
         },
@@ -445,7 +376,7 @@
                     "example": "ns=3;i=3093118269"
                 },
                 "status": {
-                    "$ref": "#/definitions/models.ConnectionStatusEnum"
+                    "$ref": "#/definitions/internal_domain_models.ConnectionStatusEnum"
                 },
                 "useCount": {
                     "type": "integer",
@@ -538,54 +469,6 @@
                 }
             }
         },
-        "models.ConnectionStatusEnum": {
-            "type": "string",
-            "enum": [
-                "OK",
-                "FAIL",
-                "NOT FOUND",
-                "HEALTHY",
-                "UNHEALTHY",
-                "CONNECTED",
-                "DISCONNECTED",
-                "ERROR",
-                "TIMEOUT",
-                "AUTH_FAILED"
-            ],
-            "x-enum-comments": {
-                "StatusAuthFailed": "Ошибка аутентификации",
-                "StatusConnected": "Соединение установлено",
-                "StatusDisconnected": "Соединение разорвано",
-                "StatusError": "Ошибка соединения",
-                "StatusHealthy": "Соединение здорово и работает",
-                "StatusTimeout": "Таймаут соединения",
-                "StatusUnhealthy": "Соединение есть, но есть проблемы"
-            },
-            "x-enum-descriptions": [
-                "",
-                "",
-                "",
-                "Соединение здорово и работает",
-                "Соединение есть, но есть проблемы",
-                "Соединение установлено",
-                "Соединение разорвано",
-                "Ошибка соединения",
-                "Таймаут соединения",
-                "Ошибка аутентификации"
-            ],
-            "x-enum-varnames": [
-                "StatusOK",
-                "StatusFail",
-                "StatusNotFound",
-                "StatusHealthy",
-                "StatusUnhealthy",
-                "StatusConnected",
-                "StatusDisconnected",
-                "StatusError",
-                "StatusTimeout",
-                "StatusAuthFailed"
-            ]
-        },
         "models.ConnectionTypeEnum": {
             "type": "string",
             "enum": [
@@ -599,17 +482,6 @@
                 "ConnectionCertificate"
             ]
         },
-        "models.DisconnectRequest": {
-            "type": "object",
-            "required": [
-                "UUID"
-            ],
-            "properties": {
-                "UUID": {
-                    "type": "string"
-                }
-            }
-        },
         "models.DisconnectResponse": {
             "type": "object",
             "required": [
@@ -618,56 +490,6 @@
             "properties": {
                 "disconnected": {
                     "type": "boolean"
-                }
-            }
-        },
-        "models.DisconnectResponseSwagger": {
-            "type": "object",
-            "properties": {
-                "response": {
-                    "type": "object",
-                    "properties": {
-                        "data": {
-                            "$ref": "#/definitions/models.DisconnectResponse"
-                        },
-                        "message": {
-                            "type": "string",
-                            "example": "Successfully disconnected"
-                        },
-                        "type": {
-                            "type": "string",
-                            "example": "object"
-                        }
-                    }
-                },
-                "status": {
-                    "type": "string",
-                    "example": "ok"
-                }
-            }
-        },
-        "models.GetConnectionPoolResponseSwagger": {
-            "type": "object",
-            "properties": {
-                "response": {
-                    "type": "object",
-                    "properties": {
-                        "data": {
-                            "$ref": "#/definitions/models.ConnectionPoolResponse"
-                        },
-                        "message": {
-                            "type": "string",
-                            "example": "Successfully get connection pool"
-                        },
-                        "type": {
-                            "type": "string",
-                            "example": "object"
-                        }
-                    }
-                },
-                "status": {
-                    "type": "string",
-                    "example": "ok"
                 }
             }
         },
@@ -695,31 +517,6 @@
                 }
             }
         },
-        "models.PollingResponseSwagger": {
-            "type": "object",
-            "properties": {
-                "response": {
-                    "type": "object",
-                    "properties": {
-                        "data": {
-                            "$ref": "#/definitions/models.PollingResponse"
-                        },
-                        "message": {
-                            "type": "string",
-                            "example": "Polling started/stopped for machine"
-                        },
-                        "type": {
-                            "type": "string",
-                            "example": "object"
-                        }
-                    }
-                },
-                "status": {
-                    "type": "string",
-                    "example": "ok"
-                }
-            }
-        },
         "models.SecurityPolicyEnum": {
             "type": "string",
             "enum": [
@@ -735,6 +532,17 @@
                 "PolicyBasic256Sha256"
             ]
         },
+        "models.UUIDRequest": {
+            "type": "object",
+            "required": [
+                "UUID"
+            ],
+            "properties": {
+                "UUID": {
+                    "type": "string"
+                }
+            }
+        },
         "models.UUIDResponse": {
             "type": "object",
             "required": [
@@ -746,28 +554,191 @@
                 }
             }
         },
-        "models.UUIDResponseSwagger": {
+        "swagger.CheckConnectionResponseSwaggerExample": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/models.ConnectionInfoResponse"
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Successfully get connection info"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "ok"
+                },
+                "type": {
+                    "type": "string",
+                    "example": "object"
+                }
+            }
+        },
+        "swagger.DisconnectResponseSwaggerExample": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/models.DisconnectResponse"
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Successfully disconnected"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "ok"
+                },
+                "type": {
+                    "type": "string",
+                    "example": "object"
+                }
+            }
+        },
+        "swagger.GetConnectionPoolResponseSwaggerExample": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/models.ConnectionPoolResponse"
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Successfully get connection pool"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "ok"
+                },
+                "type": {
+                    "type": "string",
+                    "example": "object"
+                }
+            }
+        },
+        "swagger.IncorrectDataErrorSwaggerExample": {
             "type": "object",
             "properties": {
                 "response": {
                     "type": "object",
                     "properties": {
-                        "data": {
-                            "$ref": "#/definitions/models.UUIDResponse"
+                        "code": {
+                            "type": "integer",
+                            "example": 400
                         },
                         "message": {
                             "type": "string",
-                            "example": "Successfully connected"
-                        },
-                        "type": {
-                            "type": "string",
-                            "example": "object"
+                            "example": "Некорректные данные"
                         }
                     }
                 },
                 "status": {
                     "type": "string",
+                    "example": "IncorrectDataError"
+                }
+            }
+        },
+        "swagger.IncorrectFormatErrorSwaggerExample": {
+            "type": "object",
+            "properties": {
+                "response": {
+                    "type": "object",
+                    "properties": {
+                        "code": {
+                            "type": "integer",
+                            "example": 400
+                        },
+                        "message": {
+                            "type": "string",
+                            "example": "Неверный формат запроса"
+                        }
+                    }
+                },
+                "status": {
+                    "type": "string",
+                    "example": "IncorrectFormatError"
+                }
+            }
+        },
+        "swagger.InternalServerErrorSwaggerExample": {
+            "type": "object",
+            "properties": {
+                "response": {
+                    "type": "object",
+                    "properties": {
+                        "code": {
+                            "type": "integer",
+                            "example": 500
+                        },
+                        "message": {
+                            "type": "string",
+                            "example": "Внутренняя ошибка сервера"
+                        }
+                    }
+                },
+                "status": {
+                    "type": "string",
+                    "example": "InternalServerError"
+                }
+            }
+        },
+        "swagger.NotFoundErrorSwaggerExample": {
+            "type": "object",
+            "properties": {
+                "response": {
+                    "type": "object",
+                    "properties": {
+                        "code": {
+                            "type": "integer",
+                            "example": 404
+                        },
+                        "message": {
+                            "type": "string",
+                            "example": "Данные не найдены"
+                        }
+                    }
+                },
+                "status": {
+                    "type": "string",
+                    "example": "NotFoundError"
+                }
+            }
+        },
+        "swagger.PollingResponseSwaggerExample": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/models.PollingResponse"
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Polling started/stopped for machine"
+                },
+                "status": {
+                    "type": "string",
                     "example": "ok"
+                },
+                "type": {
+                    "type": "string",
+                    "example": "object"
+                }
+            }
+        },
+        "swagger.UUIDResponseSwaggerExample": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/models.UUIDResponse"
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Successfully connected"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "ok"
+                },
+                "type": {
+                    "type": "string",
+                    "example": "object"
                 }
             }
         }

@@ -5,45 +5,10 @@ import (
 	"fmt"
 )
 
-type AppError struct {
-	Code         int    `json:"code"`    // Включить код ошибки в JSON
-	Message      string `json:"message"` // Сообщение для клиента
-	Err          error  `json:"-"`       // Не отправлять внутренние ошибки
-	IsUserFacing bool   `json:"-"`       // Внутреннее поле
-}
-
-func (e *AppError) Unwrap() error {
-	return e.Err
-}
-
-func (a *AppError) Error() string {
-	if a == nil {
-		return ""
-	}
-	if a.Err != nil {
-		return fmt.Sprintf("%s (code: %d): %v", a.Message, a.Code, a.Err)
-	}
-	return fmt.Sprintf("%s (code: %d)", a.Message, a.Code)
-}
-
-type DBError struct {
-	Message string
-	Err     error
-}
-
-func (e *DBError) Error() string {
-	return fmt.Sprintf("%s: %v", e.Message, e.Err)
-}
-
-func (e *DBError) Unwrap() error {
-	return e.Err // или e.inner, если ты хранишь вложенную ошибку под другим именем
-}
-
 const (
 	InternalServerError = "internal server error"
 	BadRequest          = "bad request"
 	NotFound            = "not_found"
-	UnauthorizedError   = "unauthorized"
 
 	BadRequestErrorCode     = 400
 	InvalidDataCode         = 400
@@ -51,24 +16,6 @@ const (
 	InternalServerErrorCode = 500
 	NotFoundErrorCode       = 404
 )
-
-func NewAppError(httpCode int, message string, err error, isUserFacing bool) *AppError {
-	return &AppError{
-		Code:         httpCode,
-		Message:      message,
-		Err:          err,
-		IsUserFacing: isUserFacing,
-	}
-}
-
-func NewDBError(message string, dbError error) *AppError {
-	return &AppError{
-		Code:         InternalServerErrorCode,
-		Message:      message,
-		Err:          dbError,
-		IsUserFacing: false,
-	}
-}
 
 var (
 	ErrEmptyAction  = errors.New("action did not affect the data")

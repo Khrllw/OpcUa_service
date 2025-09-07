@@ -1,92 +1,54 @@
 basePath: /api/v1
 definitions:
-  handlers.IncorrectDataError:
-    properties:
-      response:
-        properties:
-          code:
-            example: 401
-            type: integer
-          message:
-            example: Некорректные данные
-            type: string
-        type: object
-      status:
-        description: error
-        example: IncorrectDataError
-        type: string
-    type: object
-  handlers.IncorrectFormatError:
-    properties:
-      response:
-        properties:
-          code:
-            example: 400
-            type: integer
-          message:
-            example: Неверный формат запроса
-            type: string
-        type: object
-      status:
-        description: error
-        example: IncorrectFormatError
-        type: string
-    type: object
-  handlers.InternalServerError:
-    properties:
-      response:
-        properties:
-          code:
-            example: 500
-            type: integer
-          message:
-            example: Внутренняя ошибка сервера
-            type: string
-        type: object
-      status:
-        description: error
-        example: InternalServerError
-        type: string
-    type: object
-  handlers.NotFoundError:
-    properties:
-      response:
-        properties:
-          code:
-            example: 404
-            type: integer
-          message:
-            example: Данные не найдены
-            type: string
-        type: object
-      status:
-        description: error
-        example: NotFoundError
-        type: string
-    type: object
+  internal_domain_models.ConnectionStatusEnum:
+    enum:
+    - OK
+    - FAIL
+    - NOT FOUND
+    - HEALTHY
+    - UNHEALTHY
+    - CONNECTED
+    - DISCONNECTED
+    - ERROR
+    - TIMEOUT
+    - AUTH_FAILED
+    type: string
+    x-enum-comments:
+      StatusAuthFailed: Ошибка аутентификации
+      StatusConnected: Соединение установлено
+      StatusDisconnected: Соединение разорвано
+      StatusError: Ошибка соединения
+      StatusHealthy: Соединение здорово и работает
+      StatusTimeout: Таймаут соединения
+      StatusUnhealthy: Соединение есть, но есть проблемы
+    x-enum-descriptions:
+    - ""
+    - ""
+    - ""
+    - Соединение здорово и работает
+    - Соединение есть, но есть проблемы
+    - Соединение установлено
+    - Соединение разорвано
+    - Ошибка соединения
+    - Таймаут соединения
+    - Ошибка аутентификации
+    x-enum-varnames:
+    - StatusOK
+    - StatusFail
+    - StatusNotFound
+    - StatusHealthy
+    - StatusUnhealthy
+    - StatusConnected
+    - StatusDisconnected
+    - StatusError
+    - StatusTimeout
+    - StatusAuthFailed
   models.CheckConnectionRequest:
     properties:
       UUID:
         type: string
     required:
     - UUID
-    type: object
-  models.CheckConnectionResponseSwagger:
-    properties:
-      response:
-        properties:
-          data:
-            $ref: '#/definitions/models.ConnectionInfoResponse'
-          message:
-            example: Successfully get connection info
-            type: string
-          type:
-            example: object
-            type: string
-        type: object
-      status:
-        example: ok
-        type: string
     type: object
   models.ConnectionConfig:
     properties:
@@ -111,7 +73,7 @@ definitions:
         example: ns=3;i=3093118269
         type: string
       status:
-        $ref: '#/definitions/models.ConnectionStatusEnum'
+        $ref: '#/definitions/internal_domain_models.ConnectionStatusEnum'
       useCount:
         example: 1
         type: integer
@@ -173,49 +135,6 @@ definitions:
     - manufacturer
     - model
     type: object
-  models.ConnectionStatusEnum:
-    enum:
-    - OK
-    - FAIL
-    - NOT FOUND
-    - HEALTHY
-    - UNHEALTHY
-    - CONNECTED
-    - DISCONNECTED
-    - ERROR
-    - TIMEOUT
-    - AUTH_FAILED
-    type: string
-    x-enum-comments:
-      StatusAuthFailed: Ошибка аутентификации
-      StatusConnected: Соединение установлено
-      StatusDisconnected: Соединение разорвано
-      StatusError: Ошибка соединения
-      StatusHealthy: Соединение здорово и работает
-      StatusTimeout: Таймаут соединения
-      StatusUnhealthy: Соединение есть, но есть проблемы
-    x-enum-descriptions:
-    - ""
-    - ""
-    - ""
-    - Соединение здорово и работает
-    - Соединение есть, но есть проблемы
-    - Соединение установлено
-    - Соединение разорвано
-    - Ошибка соединения
-    - Таймаут соединения
-    - Ошибка аутентификации
-    x-enum-varnames:
-    - StatusOK
-    - StatusFail
-    - StatusNotFound
-    - StatusHealthy
-    - StatusUnhealthy
-    - StatusConnected
-    - StatusDisconnected
-    - StatusError
-    - StatusTimeout
-    - StatusAuthFailed
   models.ConnectionTypeEnum:
     enum:
     - anonymous
@@ -226,53 +145,12 @@ definitions:
     - ConnectionAnonymous
     - ConnectionPassword
     - ConnectionCertificate
-  models.DisconnectRequest:
-    properties:
-      UUID:
-        type: string
-    required:
-    - UUID
-    type: object
   models.DisconnectResponse:
     properties:
       disconnected:
         type: boolean
     required:
     - disconnected
-    type: object
-  models.DisconnectResponseSwagger:
-    properties:
-      response:
-        properties:
-          data:
-            $ref: '#/definitions/models.DisconnectResponse'
-          message:
-            example: Successfully disconnected
-            type: string
-          type:
-            example: object
-            type: string
-        type: object
-      status:
-        example: ok
-        type: string
-    type: object
-  models.GetConnectionPoolResponseSwagger:
-    properties:
-      response:
-        properties:
-          data:
-            $ref: '#/definitions/models.ConnectionPoolResponse'
-          message:
-            example: Successfully get connection pool
-            type: string
-          type:
-            example: object
-            type: string
-        type: object
-      status:
-        example: ok
-        type: string
     type: object
   models.MessageSecurityModeEnum:
     enum:
@@ -291,23 +169,6 @@ definitions:
     required:
     - polled
     type: object
-  models.PollingResponseSwagger:
-    properties:
-      response:
-        properties:
-          data:
-            $ref: '#/definitions/models.PollingResponse'
-          message:
-            example: Polling started/stopped for machine
-            type: string
-          type:
-            example: object
-            type: string
-        type: object
-      status:
-        example: ok
-        type: string
-    type: object
   models.SecurityPolicyEnum:
     enum:
     - None
@@ -320,6 +181,13 @@ definitions:
     - PolicyBasic128Rsa15
     - PolicyBasic256
     - PolicyBasic256Sha256
+  models.UUIDRequest:
+    properties:
+      UUID:
+        type: string
+    required:
+    - UUID
+    type: object
   models.UUIDResponse:
     properties:
       UUID:
@@ -327,21 +195,134 @@ definitions:
     required:
     - UUID
     type: object
-  models.UUIDResponseSwagger:
+  swagger.CheckConnectionResponseSwaggerExample:
+    properties:
+      data:
+        $ref: '#/definitions/models.ConnectionInfoResponse'
+      message:
+        example: Successfully get connection info
+        type: string
+      status:
+        example: ok
+        type: string
+      type:
+        example: object
+        type: string
+    type: object
+  swagger.DisconnectResponseSwaggerExample:
+    properties:
+      data:
+        $ref: '#/definitions/models.DisconnectResponse'
+      message:
+        example: Successfully disconnected
+        type: string
+      status:
+        example: ok
+        type: string
+      type:
+        example: object
+        type: string
+    type: object
+  swagger.GetConnectionPoolResponseSwaggerExample:
+    properties:
+      data:
+        $ref: '#/definitions/models.ConnectionPoolResponse'
+      message:
+        example: Successfully get connection pool
+        type: string
+      status:
+        example: ok
+        type: string
+      type:
+        example: object
+        type: string
+    type: object
+  swagger.IncorrectDataErrorSwaggerExample:
     properties:
       response:
         properties:
-          data:
-            $ref: '#/definitions/models.UUIDResponse'
+          code:
+            example: 400
+            type: integer
           message:
-            example: Successfully connected
-            type: string
-          type:
-            example: object
+            example: Некорректные данные
             type: string
         type: object
       status:
+        example: IncorrectDataError
+        type: string
+    type: object
+  swagger.IncorrectFormatErrorSwaggerExample:
+    properties:
+      response:
+        properties:
+          code:
+            example: 400
+            type: integer
+          message:
+            example: Неверный формат запроса
+            type: string
+        type: object
+      status:
+        example: IncorrectFormatError
+        type: string
+    type: object
+  swagger.InternalServerErrorSwaggerExample:
+    properties:
+      response:
+        properties:
+          code:
+            example: 500
+            type: integer
+          message:
+            example: Внутренняя ошибка сервера
+            type: string
+        type: object
+      status:
+        example: InternalServerError
+        type: string
+    type: object
+  swagger.NotFoundErrorSwaggerExample:
+    properties:
+      response:
+        properties:
+          code:
+            example: 404
+            type: integer
+          message:
+            example: Данные не найдены
+            type: string
+        type: object
+      status:
+        example: NotFoundError
+        type: string
+    type: object
+  swagger.PollingResponseSwaggerExample:
+    properties:
+      data:
+        $ref: '#/definitions/models.PollingResponse'
+      message:
+        example: Polling started/stopped for machine
+        type: string
+      status:
         example: ok
+        type: string
+      type:
+        example: object
+        type: string
+    type: object
+  swagger.UUIDResponseSwaggerExample:
+    properties:
+      data:
+        $ref: '#/definitions/models.UUIDResponse'
+      message:
+        example: Successfully connected
+        type: string
+      status:
+        example: ok
+        type: string
+      type:
+        example: object
         type: string
     type: object
 host: localhost:8080
@@ -362,26 +343,26 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/models.DisconnectRequest'
+          $ref: '#/definitions/models.UUIDRequest'
       produces:
       - application/json
       responses:
         "200":
           description: Мониторинг запущен
           schema:
-            $ref: '#/definitions/models.PollingResponseSwagger'
+            $ref: '#/definitions/swagger.PollingResponseSwaggerExample'
         "400":
           description: Неверный формат запроса
           schema:
-            $ref: '#/definitions/handlers.IncorrectFormatError'
+            $ref: '#/definitions/swagger.IncorrectFormatErrorSwaggerExample'
         "404":
           description: Данные не найдены
           schema:
-            $ref: '#/definitions/handlers.NotFoundError'
+            $ref: '#/definitions/swagger.NotFoundErrorSwaggerExample'
         "500":
           description: Внутренняя ошибка сервера
           schema:
-            $ref: '#/definitions/handlers.InternalServerError'
+            $ref: '#/definitions/swagger.InternalServerErrorSwaggerExample'
       summary: Запустить мониторинг станка
       tags:
       - Polling
@@ -394,26 +375,26 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/models.DisconnectRequest'
+          $ref: '#/definitions/models.UUIDRequest'
       produces:
       - application/json
       responses:
         "200":
           description: Мониторинг запущен
           schema:
-            $ref: '#/definitions/models.PollingResponseSwagger'
+            $ref: '#/definitions/swagger.PollingResponseSwaggerExample'
         "400":
           description: Неверный формат запроса
           schema:
-            $ref: '#/definitions/handlers.IncorrectFormatError'
+            $ref: '#/definitions/swagger.IncorrectFormatErrorSwaggerExample'
         "404":
           description: Данные не найдены
           schema:
-            $ref: '#/definitions/handlers.NotFoundError'
+            $ref: '#/definitions/swagger.NotFoundErrorSwaggerExample'
         "500":
           description: Внутренняя ошибка сервера
           schema:
-            $ref: '#/definitions/handlers.InternalServerError'
+            $ref: '#/definitions/swagger.InternalServerErrorSwaggerExample'
       summary: Остановить мониторинг станка
       tags:
       - Polling
@@ -428,26 +409,26 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/models.DisconnectRequest'
+          $ref: '#/definitions/models.UUIDRequest'
       produces:
       - application/json
       responses:
         "200":
           description: Успешное отключение
           schema:
-            $ref: '#/definitions/models.DisconnectResponseSwagger'
+            $ref: '#/definitions/swagger.DisconnectResponseSwaggerExample'
         "400":
           description: Неверный формат запроса
           schema:
-            $ref: '#/definitions/handlers.IncorrectFormatError'
+            $ref: '#/definitions/swagger.IncorrectFormatErrorSwaggerExample'
         "404":
           description: Данные не найдены
           schema:
-            $ref: '#/definitions/handlers.NotFoundError'
+            $ref: '#/definitions/swagger.NotFoundErrorSwaggerExample'
         "500":
           description: Внутренняя ошибка сервера
           schema:
-            $ref: '#/definitions/handlers.InternalServerError'
+            $ref: '#/definitions/swagger.InternalServerErrorSwaggerExample'
       summary: Отключение сессии
       tags:
       - Connection
@@ -459,7 +440,7 @@ paths:
         "200":
           description: Список активных соединений
           schema:
-            $ref: '#/definitions/models.GetConnectionPoolResponseSwagger'
+            $ref: '#/definitions/swagger.GetConnectionPoolResponseSwaggerExample'
       summary: Получить пул соединений
       tags:
       - Connection
@@ -481,19 +462,19 @@ paths:
         "200":
           description: Успешное подключение
           schema:
-            $ref: '#/definitions/models.UUIDResponseSwagger'
+            $ref: '#/definitions/swagger.UUIDResponseSwaggerExample'
         "400":
           description: Неверный формат запроса или некорректные данные
           schema:
-            $ref: '#/definitions/handlers.IncorrectFormatError'
+            $ref: '#/definitions/swagger.IncorrectFormatErrorSwaggerExample'
         "401":
           description: Некорректные данные
           schema:
-            $ref: '#/definitions/handlers.IncorrectDataError'
+            $ref: '#/definitions/swagger.IncorrectDataErrorSwaggerExample'
         "500":
           description: Внутренняя ошибка сервера
           schema:
-            $ref: '#/definitions/handlers.InternalServerError'
+            $ref: '#/definitions/swagger.InternalServerErrorSwaggerExample'
       summary: Подключение клиента
       tags:
       - Connection
@@ -515,19 +496,19 @@ paths:
         "200":
           description: Информация о подключении
           schema:
-            $ref: '#/definitions/models.CheckConnectionResponseSwagger'
+            $ref: '#/definitions/swagger.CheckConnectionResponseSwaggerExample'
         "400":
           description: Неверный формат запроса
           schema:
-            $ref: '#/definitions/handlers.IncorrectFormatError'
+            $ref: '#/definitions/swagger.IncorrectFormatErrorSwaggerExample'
         "404":
           description: Данные не найдены
           schema:
-            $ref: '#/definitions/handlers.NotFoundError'
+            $ref: '#/definitions/swagger.NotFoundErrorSwaggerExample'
         "500":
           description: Внутренняя ошибка сервера
           schema:
-            $ref: '#/definitions/handlers.InternalServerError'
+            $ref: '#/definitions/swagger.InternalServerErrorSwaggerExample'
       summary: Проверка соединения
       tags:
       - Connection

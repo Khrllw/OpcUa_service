@@ -16,10 +16,10 @@ import (
 // @Accept json
 // @Produce json
 // @Param input body models.ConnectionRequest true "Данные для входа"
-// @Success 200 {object} models.UUIDResponseSwagger "Успешное подключение"
-// @Failure 400 {object} IncorrectFormatError "Неверный формат запроса или некорректные данные"
-// @Failure 401 {object} IncorrectDataError "Некорректные данные"
-// @Failure 500 {object} InternalServerError "Внутренняя ошибка сервера"
+// @Success 200 {object} swagger.UUIDResponse "Успешное подключение"
+// @Failure 400 {object} swagger.IncorrectFormatError "Неверный формат запроса или некорректные данные"
+// @Failure 401 {object} swagger.IncorrectDataError "Некорректные данные"
+// @Failure 500 {object} swagger.InternalServerError "Внутренняя ошибка сервера"
 // @Router /connect [post]
 func (h *Handler) AddConnection(c *gin.Context) {
 	var req models.ConnectionRequest
@@ -58,10 +58,10 @@ func (h *Handler) AddConnection(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param input body models.UUIDRequest true "UUID для отключения"
-// @Success 200 {object} models.DisconnectResponseSwagger "Успешное отключение"
-// @Failure 400 {object} IncorrectFormatError "Неверный формат запроса"
-// @Failure 404 {object} NotFoundError "Данные не найдены"
-// @Failure 500 {object} InternalServerError "Внутренняя ошибка сервера"
+// @Success 200 {object} swagger.DisconnectResponse "Успешное отключение"
+// @Failure 400 {object} swagger.IncorrectFormatError "Неверный формат запроса"
+// @Failure 404 {object} swagger.NotFoundError "Данные не найдены"
+// @Failure 500 {object} swagger.InternalServerError "Внутренняя ошибка сервера"
 // @Router /connect [delete]
 func (h *Handler) CloseConnection(c *gin.Context) {
 	var req models.UUIDRequest
@@ -74,7 +74,6 @@ func (h *Handler) CloseConnection(c *gin.Context) {
 		h.BadRequest(c, fmt.Errorf("incorrect UUID: %s", req.UUID))
 	}
 
-	// Вызываем usecase для закрытия соединения
 	state, eerr := h.usecase.DisconnectByUUID(id)
 	if eerr != nil {
 		if state == nil || *state == false {
@@ -95,10 +94,10 @@ func (h *Handler) CloseConnection(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param input body models.CheckConnectionRequest true "UUID для проверки"
-// @Success 200 {object} models.CheckConnectionResponseSwagger "Информация о подключении"
-// @Failure 400 {object} IncorrectFormatError "Неверный формат запроса"
-// @Failure 404 {object} NotFoundError "Данные не найдены"
-// @Failure 500 {object} InternalServerError "Внутренняя ошибка сервера"
+// @Success 200 {object} swagger.CheckConnectionResponse "Информация о подключении"
+// @Failure 400 {object} swagger.IncorrectFormatError "Неверный формат запроса"
+// @Failure 404 {object} swagger.NotFoundError "Данные не найдены"
+// @Failure 500 {object} swagger.InternalServerError "Внутренняя ошибка сервера"
 // @Router /connect/check [post]
 func (h *Handler) CheckConnection(c *gin.Context) {
 	var req models.CheckConnectionRequest
@@ -111,7 +110,6 @@ func (h *Handler) CheckConnection(c *gin.Context) {
 		h.BadRequest(c, fmt.Errorf("incorrect UUID: %s", req.UUID))
 	}
 
-	// Получаем информацию о соединении
 	connInfo, eerr := h.usecase.GetConnectionState(id)
 	if eerr != nil {
 		h.ErrorResponse(c, eerr, eerr.Code, eerr.Message, false)
@@ -126,7 +124,7 @@ func (h *Handler) CheckConnection(c *gin.Context) {
 // @Description Возвращает список активных соединений в пуле OPC UA
 // @Tags Connection
 // @Produce json
-// @Success 200 {object} models.GetConnectionPoolResponseSwagger "Список активных соединений"
+// @Success 200 {object} swagger.GetConnectionPoolResponse "Список активных соединений"
 // @Router /connect [get]
 func (h *Handler) GetConnectionPool(c *gin.Context) {
 	resp := h.usecase.GetActiveConnections()

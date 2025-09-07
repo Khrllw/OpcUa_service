@@ -44,6 +44,7 @@ func DefaultServerConfig() ServerConfig {
 
 type AppConfig struct {
 	Version string
+	GinMode string
 	Kafka   KafkaConfig
 }
 
@@ -95,6 +96,7 @@ func LoadConfig() (*Config, error) {
 				},
 				KafkaTopic: getEnv("KAFKA_TOPIC", "opc-data"),
 			},
+			GinMode: getEnv("GIN_MODE", "release"),
 		},
 		HTTPServer: HTTPConfig{
 			Port:              getEnv("SERVER_PORT", "6004"),

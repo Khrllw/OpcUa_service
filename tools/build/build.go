@@ -16,7 +16,7 @@ type buildTarget struct {
 }
 
 // Обновленный путь к исходникам
-const sourcePath = "./cmd/app/app.go"
+const sourcePath = "./cmd/app/main.go"
 
 func main() {
 	targets := []buildTarget{
