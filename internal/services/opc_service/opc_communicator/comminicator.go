@@ -58,9 +58,11 @@ func (oc *OpcCommunicator) ReadMachineData(id uuid.UUID) (interfaces.MachineData
 		}
 
 		// Декодируем значение в структуру
-		if err := machine.ConvertNodeToMachineData(nodeID.String(), val); err != nil {
-			oc.logger.Error("Failed to convert node %s: %v", nodeID, err)
-			continue
+		if val != nil {
+			if err := machine.ConvertNodeToMachineData(nodeID.String(), val); err != nil {
+				oc.logger.Error("Failed to convert node %s: %v", nodeID, err)
+				continue
+			}
 		}
 	}
 

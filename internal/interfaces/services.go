@@ -36,6 +36,7 @@ type OpcConnectorService interface {
 	CreateAnonymousConnection(config connection_models.AnonymousConnection) (*uuid.UUID, error)
 	CreatePasswordConnection(config connection_models.PasswordConnection) (*uuid.UUID, error)
 	CreateCertificateConnection(config connection_models.CertificateConnection) (*uuid.UUID, error)
+	Reconnect(ID uuid.UUID, info *models.ConnectionInfo) (*uuid.UUID, error)
 	CloseAll()
 	GetConnectionByUUID(id uuid.UUID) (*client.Client, error)
 	GetConnectionInfoByUUID(id uuid.UUID) (*models.ConnectionInfo, error)

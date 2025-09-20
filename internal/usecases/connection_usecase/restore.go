@@ -72,7 +72,7 @@ func (u *ConnectionUsecase) RestoreConnection(machine entities.CncMachine) (*mod
 	// Получаем информацию о соединении из пула
 	connInfo, err2 := u.OpcService.GetConnectionInfoByUUID(*connID)
 	if err2 != nil || connInfo == nil {
-		return nil, nil // соединение не удалось восстановить, но функция всегда успешна
+		return nil, errors.NewAppError(errors.InternalServerErrorCode, "failed to add machine to pool", err, true) // соединение не удалось восстановить, но функция всегда успешна
 	}
 
 	// Запускаем опрос, если машина была в состоянии "polled"

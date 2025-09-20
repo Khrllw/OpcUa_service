@@ -66,6 +66,8 @@ func (oc *OpcConnector) CloseAll() {
 // CloseConnection закрывает подключение и удаляет его из пула
 func (oc *OpcConnector) CloseConnection(id uuid.UUID) error {
 	oc.mu.Lock()
+	defer oc.mu.Unlock()
+
 	info, exists := oc.connections[id]
 	if !exists || info == nil {
 		oc.mu.Unlock()

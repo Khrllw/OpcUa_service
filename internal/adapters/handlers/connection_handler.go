@@ -45,7 +45,7 @@ func (h *Handler) AddConnection(c *gin.Context) {
 
 	if err != nil {
 		h.logger.Error("Connection failed", "error", err)
-		h.ErrorResponse(c, err, err.Code, err.Message, true)
+		h.ErrorResponse(c, err, err.Code, err.Message, false)
 		return
 	}
 	h.ResultResponse(c, "Successfully connected", Object, resp)
@@ -77,7 +77,7 @@ func (h *Handler) CloseConnection(c *gin.Context) {
 	state, eerr := h.usecase.DisconnectByUUID(id)
 	if eerr != nil {
 		if state == nil || *state == false {
-			h.ErrorResponse(c, err, eerr.Code, eerr.Message, true)
+			h.ErrorResponse(c, err, eerr.Code, eerr.Message, false)
 			return
 		} else {
 			h.ResultResponse(c, "Disconnected with database record delete error", Object, models.DisconnectResponse{Disconnected: true})

@@ -41,16 +41,32 @@ func (o *OpcCommunicator) StartPollingForMachine(id uuid.UUID) error {
 				connInfo.IsPolled = false
 				return
 			case <-ticker.C:
-				data, err := o.ReadMachineData(id)
-				if err != nil {
-					o.logger.Error("Error polling machine %s: %v", connInfo.SessionID, err)
-					continue
-				}
-				dataResponse := data.ToResponse()
-				dataJSON := data.ToJSON()
-				err = o.producer.Produce(context.Background(), []byte(dataResponse.MachineId), []byte(dataJSON))
-				if err != nil {
-					o.logger.Error("Failed to send data to Kafka", "machineId", dataResponse.MachineId, "error", err)
+				if connInfo.IsHealthy {
+					data, err := o.ReadMachineData(id)
+					if err != nil {
+						o.logger.Error("Error polling machine %s: %v", connInfo.SessionID, err)
+						continue
+					}
+					dataResponse := data.ToResponse()
+					dataJSON := data.ToJSON()
+					err = o.producer.Produce(context.Background(), []byte(dataResponse.MachineId), []byte(dataJSON))
+					if err != nil {
+						o.logger.Error("Failed to send data to Kafka", "machineId", dataResponse.MachineId, "error", err)
+					}
+				} else {
+					o.logger.Error("Connection failed", "UUID", id)
+					reconnectedUUID, err := o.connector.Reconnect(id, connInfo)
+					if err != nil {
+						o.logger.Error("Failed to reconnect", "UUID", id, "error", err)
+						o.logger.Info("Stopped polling for machine %s", connInfo.SessionID)
+						connInfo.IsPolled = false
+						return
+					}
+					err = o.StartPollingForMachine(*reconnectedUUID)
+					if err != nil {
+						o.logger.Error("Failed to start polling for reconnected machine %s", reconnectedUUID)
+					}
+					return
 				}
 			}
 		}
