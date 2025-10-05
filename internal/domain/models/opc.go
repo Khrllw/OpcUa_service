@@ -4,7 +4,7 @@ import (
 	"context"
 	"github.com/awcullen/opcua/client"
 	"github.com/awcullen/opcua/ua"
-	models "opc_ua_service/internal/domain/models/connection_models"
+	models "opc_ua_service/internal/domain/models/connection_types"
 	"opc_ua_service/pkg/opc_custom"
 	"sync"
 	"time"
@@ -28,6 +28,7 @@ type ConnectionInfo struct {
 	Ctx       context.Context
 	Cancel    context.CancelFunc
 	SessionID string
+	MachineID uint64
 	Config    models.ConnectionConfig
 	CreatedAt time.Time
 	LastUsed  time.Time

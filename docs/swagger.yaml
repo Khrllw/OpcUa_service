@@ -52,8 +52,7 @@ definitions:
     type: object
   models.ConnectionConfig:
     properties:
-      config:
-        description: Type   ConnectionTypeEnum
+      config: {}
     type: object
   models.ConnectionInfoResponse:
     properties:
@@ -195,7 +194,7 @@ definitions:
     required:
     - UUID
     type: object
-  swagger.CheckConnectionResponseSwaggerExample:
+  swagger.CheckConnectionResponse:
     properties:
       data:
         $ref: '#/definitions/models.ConnectionInfoResponse'
@@ -209,7 +208,7 @@ definitions:
         example: object
         type: string
     type: object
-  swagger.DisconnectResponseSwaggerExample:
+  swagger.DisconnectResponse:
     properties:
       data:
         $ref: '#/definitions/models.DisconnectResponse'
@@ -223,7 +222,7 @@ definitions:
         example: object
         type: string
     type: object
-  swagger.GetConnectionPoolResponseSwaggerExample:
+  swagger.GetConnectionPoolResponse:
     properties:
       data:
         $ref: '#/definitions/models.ConnectionPoolResponse'
@@ -237,7 +236,7 @@ definitions:
         example: object
         type: string
     type: object
-  swagger.IncorrectDataErrorSwaggerExample:
+  swagger.IncorrectDataError:
     properties:
       response:
         properties:
@@ -252,7 +251,7 @@ definitions:
         example: IncorrectDataError
         type: string
     type: object
-  swagger.IncorrectFormatErrorSwaggerExample:
+  swagger.IncorrectFormatError:
     properties:
       response:
         properties:
@@ -267,7 +266,7 @@ definitions:
         example: IncorrectFormatError
         type: string
     type: object
-  swagger.InternalServerErrorSwaggerExample:
+  swagger.InternalServerError:
     properties:
       response:
         properties:
@@ -282,7 +281,7 @@ definitions:
         example: InternalServerError
         type: string
     type: object
-  swagger.NotFoundErrorSwaggerExample:
+  swagger.NotFoundError:
     properties:
       response:
         properties:
@@ -297,7 +296,7 @@ definitions:
         example: NotFoundError
         type: string
     type: object
-  swagger.PollingResponseSwaggerExample:
+  swagger.PollingResponse:
     properties:
       data:
         $ref: '#/definitions/models.PollingResponse'
@@ -311,7 +310,7 @@ definitions:
         example: object
         type: string
     type: object
-  swagger.UUIDResponseSwaggerExample:
+  swagger.UUIDResponse:
     properties:
       data:
         $ref: '#/definitions/models.UUIDResponse'
@@ -350,19 +349,19 @@ paths:
         "200":
           description: Мониторинг запущен
           schema:
-            $ref: '#/definitions/swagger.PollingResponseSwaggerExample'
+            $ref: '#/definitions/swagger.PollingResponse'
         "400":
           description: Неверный формат запроса
           schema:
-            $ref: '#/definitions/swagger.IncorrectFormatErrorSwaggerExample'
+            $ref: '#/definitions/swagger.IncorrectFormatError'
         "404":
           description: Данные не найдены
           schema:
-            $ref: '#/definitions/swagger.NotFoundErrorSwaggerExample'
+            $ref: '#/definitions/swagger.NotFoundError'
         "500":
           description: Внутренняя ошибка сервера
           schema:
-            $ref: '#/definitions/swagger.InternalServerErrorSwaggerExample'
+            $ref: '#/definitions/swagger.InternalServerError'
       summary: Запустить мониторинг станка
       tags:
       - Polling
@@ -382,19 +381,19 @@ paths:
         "200":
           description: Мониторинг запущен
           schema:
-            $ref: '#/definitions/swagger.PollingResponseSwaggerExample'
+            $ref: '#/definitions/swagger.PollingResponse'
         "400":
           description: Неверный формат запроса
           schema:
-            $ref: '#/definitions/swagger.IncorrectFormatErrorSwaggerExample'
+            $ref: '#/definitions/swagger.IncorrectFormatError'
         "404":
           description: Данные не найдены
           schema:
-            $ref: '#/definitions/swagger.NotFoundErrorSwaggerExample'
+            $ref: '#/definitions/swagger.NotFoundError'
         "500":
           description: Внутренняя ошибка сервера
           schema:
-            $ref: '#/definitions/swagger.InternalServerErrorSwaggerExample'
+            $ref: '#/definitions/swagger.InternalServerError'
       summary: Остановить мониторинг станка
       tags:
       - Polling
@@ -416,19 +415,19 @@ paths:
         "200":
           description: Успешное отключение
           schema:
-            $ref: '#/definitions/swagger.DisconnectResponseSwaggerExample'
+            $ref: '#/definitions/swagger.DisconnectResponse'
         "400":
           description: Неверный формат запроса
           schema:
-            $ref: '#/definitions/swagger.IncorrectFormatErrorSwaggerExample'
+            $ref: '#/definitions/swagger.IncorrectFormatError'
         "404":
           description: Данные не найдены
           schema:
-            $ref: '#/definitions/swagger.NotFoundErrorSwaggerExample'
+            $ref: '#/definitions/swagger.NotFoundError'
         "500":
           description: Внутренняя ошибка сервера
           schema:
-            $ref: '#/definitions/swagger.InternalServerErrorSwaggerExample'
+            $ref: '#/definitions/swagger.InternalServerError'
       summary: Отключение сессии
       tags:
       - Connection
@@ -440,7 +439,7 @@ paths:
         "200":
           description: Список активных соединений
           schema:
-            $ref: '#/definitions/swagger.GetConnectionPoolResponseSwaggerExample'
+            $ref: '#/definitions/swagger.GetConnectionPoolResponse'
       summary: Получить пул соединений
       tags:
       - Connection
@@ -462,19 +461,19 @@ paths:
         "200":
           description: Успешное подключение
           schema:
-            $ref: '#/definitions/swagger.UUIDResponseSwaggerExample'
+            $ref: '#/definitions/swagger.UUIDResponse'
         "400":
           description: Неверный формат запроса или некорректные данные
           schema:
-            $ref: '#/definitions/swagger.IncorrectFormatErrorSwaggerExample'
+            $ref: '#/definitions/swagger.IncorrectFormatError'
         "401":
           description: Некорректные данные
           schema:
-            $ref: '#/definitions/swagger.IncorrectDataErrorSwaggerExample'
+            $ref: '#/definitions/swagger.IncorrectDataError'
         "500":
           description: Внутренняя ошибка сервера
           schema:
-            $ref: '#/definitions/swagger.InternalServerErrorSwaggerExample'
+            $ref: '#/definitions/swagger.InternalServerError'
       summary: Подключение клиента
       tags:
       - Connection
@@ -496,19 +495,19 @@ paths:
         "200":
           description: Информация о подключении
           schema:
-            $ref: '#/definitions/swagger.CheckConnectionResponseSwaggerExample'
+            $ref: '#/definitions/swagger.CheckConnectionResponse'
         "400":
           description: Неверный формат запроса
           schema:
-            $ref: '#/definitions/swagger.IncorrectFormatErrorSwaggerExample'
+            $ref: '#/definitions/swagger.IncorrectFormatError'
         "404":
           description: Данные не найдены
           schema:
-            $ref: '#/definitions/swagger.NotFoundErrorSwaggerExample'
+            $ref: '#/definitions/swagger.NotFoundError'
         "500":
           description: Внутренняя ошибка сервера
           schema:
-            $ref: '#/definitions/swagger.InternalServerErrorSwaggerExample'
+            $ref: '#/definitions/swagger.InternalServerError'
       summary: Проверка соединения
       tags:
       - Connection

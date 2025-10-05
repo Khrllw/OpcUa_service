@@ -4,13 +4,13 @@ import (
 	"context"
 	"fmt"
 	"github.com/awcullen/opcua/client"
-	connectiion_models "opc_ua_service/internal/domain/models/connection_models"
+	connectiion_models "opc_ua_service/internal/domain/models/connection_types"
 	"time"
 )
 
 // ConnectWithCertificate Подключение по сертификату
 func (oc *OpcConnector) ConnectWithCertificate(config connectiion_models.CertificateConnection) (*client.Client, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
 	certBytes, clientCert, clientKey := oc.certManager.DecodeClientCredentials(config.Certificate, config.Key)

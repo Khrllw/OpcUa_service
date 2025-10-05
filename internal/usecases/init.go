@@ -5,6 +5,7 @@ import (
 	_ "opc_ua_service/internal/domain/entities"
 	"opc_ua_service/internal/interfaces"
 	"opc_ua_service/internal/usecases/connection_usecase"
+	"opc_ua_service/internal/usecases/polling_usecase"
 	_ "opc_ua_service/pkg/errors"
 )
 
@@ -17,7 +18,7 @@ func NewUsecases(r interfaces.Repository, s interfaces.OpcService, conf *config.
 
 	return &UseCases{
 		connection_usecase.NewConnectionUsecase(s, r, r, r, r),
-		NewPollingUsecase(s, r),
+		polling_usecase.NewPollingUsecase(s, r),
 	}
 
 }

@@ -76,6 +76,7 @@ func ensureDatabaseExists(cfg *config.Config, log *logging.Logger) error {
 			return fmt.Errorf("failed to create database: %w", err)
 		}
 		log.Info("Database created successfully.", "db_name", cfg.Database.DBName)
+
 	} else {
 		log.Info("Database already exists.", "db_name", cfg.Database.DBName)
 	}
@@ -100,19 +101,6 @@ func connectToAppDatabase(cfg *config.Config) (*gorm.DB, error) {
 
 // autoMigrate выполняет миграцию и очистку зависимых таблиц
 func autoMigrate(db *gorm.DB) error {
-	// Удаление таблиц в порядке зависимостей
-	tablesToDrop := []string{
-		"certificate_connection",
-		"anonymous_connection",
-		"password_connection",
-		"cnc_machine",
-	}
-
-	for _, table := range tablesToDrop {
-		if err := db.Migrator().DropTable(table); err != nil {
-			return fmt.Errorf("failed to drop table %s: %w", table, err)
-		}
-	}
 
 	models := []interface{}{
 		&entities.CncMachine{},

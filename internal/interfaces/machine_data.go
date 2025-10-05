@@ -2,7 +2,7 @@ package interfaces
 
 import (
 	"github.com/awcullen/opcua/ua"
-	"opc_ua_service/internal/domain/models"
+	"opc_ua_service/internal/domain/models/cnc_machines"
 	"opc_ua_service/pkg/machine_models"
 	"opc_ua_service/pkg/opc_custom"
 )
@@ -12,7 +12,7 @@ type MachineData interface {
 	ConvertNodeToMachineData(nodeID string, v any) error
 	GetExecutionStack() ([]opc_custom.ProgramPositionDataType, error)
 	ToJSON() string
-	ToResponse() models.MachineDataResponse
+	ToResponse() cnc_machines.MachineDataResponse
 	GetRelevantNodeIDs() []ua.NodeIDNumeric
 	GetMachineID() (*string, error)
 }

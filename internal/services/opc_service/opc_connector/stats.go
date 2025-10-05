@@ -8,9 +8,6 @@ import (
 
 // GetAllConnectionsInfo возвращает информацию о всех соединениях
 func (oc *OpcConnector) GetAllConnectionsInfo() map[uuid.UUID]*models.ConnectionInfo {
-	oc.mu.RLock()
-	defer oc.mu.RUnlock()
-
 	all := make([]*models.ConnectionInfo, 0, len(oc.connections))
 	for _, info := range oc.connections {
 		all = append(all, info)

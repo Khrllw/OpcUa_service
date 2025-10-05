@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/awcullen/opcua/ua"
 	"log"
-	"opc_ua_service/internal/domain/models"
+	"opc_ua_service/internal/domain/models/cnc_machines"
 	"opc_ua_service/pkg/opc_custom"
 	"time"
 )
@@ -308,8 +308,8 @@ func (m *HeidenhainTNC640Data) ConvertNodeToMachineData(nodeID string, v any) er
 }
 
 // ToResponse TODO: Все что закомменчено хз то это
-func (m *HeidenhainTNC640Data) ToResponse() models.MachineDataResponse {
-	resp := models.MachineDataResponse{
+func (m *HeidenhainTNC640Data) ToResponse() cnc_machines.MachineDataResponse {
+	resp := cnc_machines.MachineDataResponse{
 		MachineId: getStringOrDefault(m.Machine.SerialNumber, ""),
 		Timestamp: 0,
 		//IsEnabled:          false,
@@ -342,13 +342,13 @@ func (m *HeidenhainTNC640Data) ToResponse() models.MachineDataResponse {
 			}
 		}
 	}
-	var axisInfos []models.AxisInfosResponse
+	var axisInfos []cnc_machines.AxisInfosResponse
 
 	if m.CutterLocation != nil {
-		axisInfos = make([]models.AxisInfosResponse, len(*m.CutterLocation))
+		axisInfos = make([]cnc_machines.AxisInfosResponse, len(*m.CutterLocation))
 
 		for i, cutInfo := range *m.CutterLocation {
-			axisInfos[i] = models.AxisInfosResponse{
+			axisInfos[i] = cnc_machines.AxisInfosResponse{
 				Name:     cutInfo.CoordinateName,
 				Position: cutInfo.Position,
 			}

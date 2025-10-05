@@ -3,9 +3,9 @@ package handlers
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
-	"opc_ua_service/internal/domain/models"
-	connection_models "opc_ua_service/internal/domain/models/connection_models"
+	"opc_ua_service/internal/domain/entities"
+	"opc_ua_service/internal/domain/models/connection"
+	connection_models "opc_ua_service/internal/domain/models/connection_types"
 	"opc_ua_service/pkg/errors"
 )
 
@@ -16,20 +16,20 @@ import (
 // @Accept json
 // @Produce json
 // @Param input body models.ConnectionRequest true "Данные для входа"
-// @Success 200 {object} swagger.UUIDResponse "Успешное подключение"
+// @Success 200 {object} swagger.IDResponse "Успешное подключение"
 // @Failure 400 {object} swagger.IncorrectFormatError "Неверный формат запроса или некорректные данные"
 // @Failure 401 {object} swagger.IncorrectDataError "Некорректные данные"
 // @Failure 500 {object} swagger.InternalServerError "Внутренняя ошибка сервера"
 // @Router /connect [post]
 func (h *Handler) AddConnection(c *gin.Context) {
-	var req models.ConnectionRequest
+	var req connection.ConnectionRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		h.BadRequest(c, err)
 		return
 	}
 
 	var err *errors.AppError
-	var resp models.UUIDResponse
+	resp := entities.CncMachine{}
 
 	switch req.ConnectionType {
 	case connection_models.ConnectionAnonymous:
@@ -45,7 +45,7 @@ func (h *Handler) AddConnection(c *gin.Context) {
 
 	if err != nil {
 		h.logger.Error("Connection failed", "error", err)
-		h.ErrorResponse(c, err, err.Code, err.Message, true)
+		h.ErrorResponse(c, err, err.Code, err.Message, false)
 		return
 	}
 	h.ResultResponse(c, "Successfully connected", Object, resp)
@@ -53,64 +53,56 @@ func (h *Handler) AddConnection(c *gin.Context) {
 
 // CloseConnection обрабатывает запрос на отключение сессии
 // @Summary Отключение сессии
-// @Description Закрывает соединение OPC UA по UUID
+// @Description Закрывает соединение OPC UA по ID
 // @Tags Connection
 // @Accept json
 // @Produce json
-// @Param input body models.UUIDRequest true "UUID для отключения"
+// @Param input body models.IDRequest true "ID для отключения"
 // @Success 200 {object} swagger.DisconnectResponse "Успешное отключение"
 // @Failure 400 {object} swagger.IncorrectFormatError "Неверный формат запроса"
 // @Failure 404 {object} swagger.NotFoundError "Данные не найдены"
 // @Failure 500 {object} swagger.InternalServerError "Внутренняя ошибка сервера"
 // @Router /connect [delete]
 func (h *Handler) CloseConnection(c *gin.Context) {
-	var req models.UUIDRequest
+	var req connection.IDRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		h.BadRequest(c, err)
 		return
 	}
-	id, err := uuid.Parse(req.UUID)
-	if err != nil {
-		h.BadRequest(c, fmt.Errorf("incorrect UUID: %s", req.UUID))
-	}
 
-	state, eerr := h.usecase.DisconnectByUUID(id)
+	state, eerr := h.usecase.DisconnectByID(req.ID)
 	if eerr != nil {
 		if state == nil || *state == false {
-			h.ErrorResponse(c, err, eerr.Code, eerr.Message, true)
+			h.ErrorResponse(c, eerr, eerr.Code, eerr.Message, false)
 			return
 		} else {
-			h.ResultResponse(c, "Disconnected with database record delete error", Object, models.DisconnectResponse{Disconnected: true})
+			h.ResultResponse(c, "Disconnected with database record delete error", Object, connection.DisconnectResponse{Disconnected: true})
 		}
 	}
 
-	h.ResultResponse(c, "Successfully disconnected", Object, models.DisconnectResponse{Disconnected: true})
+	h.ResultResponse(c, "Successfully disconnected", Object, connection.DisconnectResponse{Disconnected: true})
 }
 
-// CheckConnection проверяет здоровье соединения по UUID
+// CheckConnection проверяет здоровье соединения по ID
 // @Summary Проверка соединения
-// @Description Проверяет состояние соединения OPC UA по UUID
+// @Description Проверяет состояние соединения OPC UA по ID
 // @Tags Connection
 // @Accept json
 // @Produce json
-// @Param input body models.CheckConnectionRequest true "UUID для проверки"
+// @Param input body models.CheckConnectionRequest true "ID для проверки"
 // @Success 200 {object} swagger.CheckConnectionResponse "Информация о подключении"
 // @Failure 400 {object} swagger.IncorrectFormatError "Неверный формат запроса"
 // @Failure 404 {object} swagger.NotFoundError "Данные не найдены"
 // @Failure 500 {object} swagger.InternalServerError "Внутренняя ошибка сервера"
 // @Router /connect/check [post]
 func (h *Handler) CheckConnection(c *gin.Context) {
-	var req models.CheckConnectionRequest
+	var req connection.CheckConnectionRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		h.BadRequest(c, err)
 		return
 	}
-	id, err := uuid.Parse(req.UUID)
-	if err != nil {
-		h.BadRequest(c, fmt.Errorf("incorrect UUID: %s", req.UUID))
-	}
 
-	connInfo, eerr := h.usecase.GetConnectionState(id)
+	connInfo, eerr := h.usecase.GetConnectionState(req.ID)
 	if eerr != nil {
 		h.ErrorResponse(c, eerr, eerr.Code, eerr.Message, false)
 		return

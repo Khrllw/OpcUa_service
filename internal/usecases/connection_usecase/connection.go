@@ -7,6 +7,8 @@ import (
 	"net"
 	"net/url"
 	"opc_ua_service/internal/domain/models"
+	"opc_ua_service/internal/domain/models/connection"
+	connection_models "opc_ua_service/internal/domain/models/connection_types"
 	"opc_ua_service/internal/interfaces"
 	"opc_ua_service/pkg/errors"
 	"time"
@@ -24,9 +26,19 @@ func NewConnectionUsecase(s interfaces.OpcService, r interfaces.CncMachineReposi
 	return &ConnectionUsecase{s, r, cr, pr, ar}
 }
 
-// DisconnectByUUID закрывает соединение по UUID
-func (u *ConnectionUsecase) DisconnectByUUID(id uuid.UUID) (*bool, *errors.AppError) {
+// DisconnectByID закрывает соединение по ID
+func (u *ConnectionUsecase) DisconnectByID(machineID uint) (*bool, *errors.AppError) {
 	var state = false
+
+	machine, err := u.MachineRepo.GetCncMachineByID(machineID)
+	if err != nil {
+		return nil, errors.NewAppError(errors.InternalServerErrorCode, "failed to find machine", err, false)
+	}
+	id, err := uuid.Parse(machine.UUID)
+	if err != nil {
+		return nil, errors.NewAppError(errors.InternalServerErrorCode, "failed to parse UUID", err, false)
+	}
+
 	info, err := u.OpcService.GetConnectionInfoByUUID(id)
 	if err != nil {
 		if errors.Is(err, errors.ErrNotFound) {
@@ -56,34 +68,21 @@ func (u *ConnectionUsecase) DisconnectByUUID(id uuid.UUID) (*bool, *errors.AppEr
 
 // ----------------------------------------------------------------------------------------------------------------
 
-// handleExistingMachine проверяет наличие машины по EndpointURL и закрывает старое соединение
-func (u *ConnectionUsecase) handleExistingMachine(endpointURL string) *errors.AppError {
-	machine, err := u.MachineRepo.GetCncMachineByEndpointURL(endpointURL)
-	if err != nil && !errors.Is(err, errors.ErrNotFound) {
+// handleExistingMachine проверяет наличие машины по полям подключения и возвращает ошибку, если соединение уже существует
+func (u *ConnectionUsecase) handleExistingMachine(config connection_models.ConnectionConfig) *errors.AppError {
+	_, err := u.MachineRepo.GetCncMachineByEndpointURL(config.Config.GetEndpointURL())
+	if err != nil {
+		if errors.Is(err, errors.ErrNotFound) {
+			return nil
+		}
 		return errors.NewAppError(errors.InternalServerErrorCode, "failed to get machine by endpoint", err, false)
 	}
-
-	if machine.UUID == "" {
-		return nil
-	}
-
-	id, err := uuid.Parse(machine.UUID)
-	if err != nil {
-		return errors.NewAppError(errors.InternalServerErrorCode, "failed to parse existing machine UUID", err, false)
-	}
-
-	conn, _ := u.OpcService.GetConnectionByUUID(id)
-	if conn != nil {
-		if _, err := u.DisconnectByUUID(id); err != nil && !errors.Is(err, errors.ErrNotFound) {
-			return errors.NewAppError(errors.InternalServerErrorCode, "failed to disconnect old machine", err, false)
-		}
-	} else {
-		if err := u.DeleteMachineRecord(id); err != nil && !errors.Is(err, errors.ErrNotFound) {
-			return errors.NewAppError(errors.InternalServerErrorCode, "failed to delete old machine record", err, false)
-		}
-	}
-
-	return nil
+	return errors.NewAppError(
+		errors.InvalidDataCode,
+		fmt.Sprintf("connection already exists for endpoint %s", config.Config.GetEndpointURL()),
+		nil,
+		false,
+	)
 }
 
 // ----------------------------------------------------------------------------------------------------------------
@@ -116,25 +115,32 @@ func (u *ConnectionUsecase) CleanupIdleConnections(maxIdleMinutes int) int {
 // ----------------------------------------------------------------------------------------------------------------
 
 // GetActiveConnections возвращает список активных соединений
-func (u *ConnectionUsecase) GetActiveConnections() models.ConnectionPoolResponse {
+func (u *ConnectionUsecase) GetActiveConnections() connection.ConnectionPoolResponse {
 	// Получаем все соединения из сервиса
 	connectionsInfo := u.OpcService.GetAllConnectionsInfo()
 
 	// Преобразуем каждый ConnectionInfo в ConnectionInfoResponse
-	var result []*models.ConnectionInfoResponse
+	var result []*connection.ConnectionInfoResponse
 	for id, connInfo := range connectionsInfo {
 		response := u.сonvertConnectionInfoToResponse(id, connInfo)
 		result = append(result, &response)
 	}
 
-	return models.ConnectionPoolResponse{
+	return connection.ConnectionPoolResponse{
 		PoolSize:    len(result),
 		Connections: result,
 	}
 }
 
 // GetConnectionState получает состояние подключения
-func (u *ConnectionUsecase) GetConnectionState(id uuid.UUID) (*models.ConnectionInfoResponse, *errors.AppError) {
+func (u *ConnectionUsecase) GetConnectionState(machineID uint) (*connection.ConnectionInfoResponse, *errors.AppError) {
+
+	machine, _ := u.MachineRepo.GetCncMachineByID(machineID)
+	id, err := uuid.Parse(machine.UUID)
+	if err != nil {
+		return nil, errors.NewAppError(errors.InternalServerErrorCode, "failed to parse UUID", err, false)
+	}
+
 	connInfo, err := u.OpcService.GetConnectionInfoByUUID(id)
 	if err != nil {
 		if errors.Is(err, errors.ErrNotFound) {
@@ -151,11 +157,11 @@ func (u *ConnectionUsecase) GetConnectionState(id uuid.UUID) (*models.Connection
 // ----------------------------------------------------------------------------------------------------------------
 
 // сonvertConnectionInfoToResponse преобразует ConnectionInfo в ConnectionInfoResponse
-func (u *ConnectionUsecase) сonvertConnectionInfoToResponse(id uuid.UUID, connInfo *models.ConnectionInfo) models.ConnectionInfoResponse {
+func (u *ConnectionUsecase) сonvertConnectionInfoToResponse(uu_id uuid.UUID, connInfo *models.ConnectionInfo) connection.ConnectionInfoResponse {
 	if connInfo == nil {
-		return models.ConnectionInfoResponse{
-			Status:      models.StatusNotFound,
-			Description: models.StatusNotFound.GetDescription(),
+		return connection.ConnectionInfoResponse{
+			Status:      connection.StatusNotFound,
+			Description: connection.StatusNotFound.GetDescription(),
 		}
 	}
 
@@ -164,15 +170,16 @@ func (u *ConnectionUsecase) сonvertConnectionInfoToResponse(id uuid.UUID, connI
 	defer connInfo.Mu.RUnlock()
 
 	// Определяем статус на основе IsHealthy
-	var status models.ConnectionStatusEnum
+	var status connection.ConnectionStatusEnum
 	if connInfo.IsHealthy {
-		status = models.StatusHealthy
+		status = connection.StatusHealthy
 	} else {
-		status = models.StatusUnhealthy
+		status = connection.StatusUnhealthy
 	}
 
-	return models.ConnectionInfoResponse{
-		UUID:        id,
+	return connection.ConnectionInfoResponse{
+		UUID:        uu_id,
+		MachineID:   connInfo.MachineID,
 		SessionID:   connInfo.SessionID,
 		Status:      status,
 		Description: status.GetDescription(),

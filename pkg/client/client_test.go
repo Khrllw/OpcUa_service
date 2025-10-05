@@ -5,8 +5,6 @@ import (
 	"log"
 	"testing"
 	"time"
-
-	"opc_ua_service/internal/domain/models"
 )
 
 // Для запуска теста должен быть запущен MTConnect сервис на localhost:8080
@@ -15,9 +13,10 @@ func TestFullClientWorkflow(t *testing.T) {
 	api := NewClient("http://localhost:8080")
 	ctx := context.Background()
 
+	// -----------------------------------------------------------
 	// 1. Создание подключения
 	log.Println("Шаг 1: Создание подключения...")
-	createReq := models.ConnectionRequest{
+	createReq := ConnectionRequest{
 		ConnectionType: "certificate",
 		EndpointURL:    "opc.tcp://KHRLLW_-340595:4840/HEIDENHAIN/NC",
 		Key:            "MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC0UCG//tSscV93zFqPlk3aag9kVpF/jqU86zRhxf6uW1fYGeFcIM+mTdCUXPRf96uOpS0oMK400vG3CGFYKoTquY5Ot8loz961EdlOOnGF02L/ZlnERO8m9FrCVmqhUkZgPawagRppgj8HeNIPGW6s8s8LSsnRGYWKRLOC49YiQKzdkcEmHhQbyrji5vMV0VhZcd99/1sfBCZM5z3Bap0J4W7d+fZBT4fjhQa6Q8Q6QLLgyKYpEMflmuTp9icT/yVMB5Pc4grLb5pcWXjxkz+WRMSQsefqIZ7BwvjNsImwCe9vaTdQ7Q4MszDmcreG0MCBqtHLFIPbsnteYi/p+m5LAgMBAAECggEAE8cCR1aCfz5ENBX/DObLN/IQKXeb/TtpK7W6CMtjHulinjpgee7DYpYAaHWK/F0PEoCoOP317adW3zY/xHWNdK17oBi6h7uHzaEyjkkMxe/6A3zMyyFV1eumv3rOYU7D7K8htG/atMiWHzyvqvulebom3tyKJwbp8HuOm68KgAvGZooOWJf5oXSL0IuRAVRn3Df6dDMC21O2tAygl3sOG6tuaqJ8G236Q7nQKnD1Jb0YOdYWk0K8qvDPAzBfDB6S/aXATKFNReBslVLuSKA/h1rYgvj/rvKzHaAehTV/iU+4RQhH1SdjIsCgJBe7cBMIjPuwCeGgmNMx9biHhAdN6QKBgQD3QvluIkS+H67h3HzZlRlRubTTQBDt36wB1xpWGQPAFFuhzPWS4+yK/z0yU4KeJXD4F3kIE42hzX+aYwRIsVeaUhGzhLE5siTzLacPD5Ool1zGoimHV+A2A2n4JaIt/PPH5aG9f8ttIgtn+yq683LB1HJUYpuZ6FyySJWTyVbxdQKBgQC6r3XCfzzLtPiMqUvC4hg472Yy4EB9VSSe7kSvYpCd05mBBJd01IikWA548wfeGxgxJ8suTilxCTQLRCT3Hn4GmBGb7gGSxOw2y8HAzovmi9CHDJ6fwEoxBV0wF/C/uGJATFm4eAr66AdNq+4CNZ3EjiI4DH7C2tQmJUYK7JoovwKBgAieAOthrluh5wpgEMnUdGlwu2iRVwWzQd9ei8BsZsEO9JKS/gv8fYXql0tltaulSmabCtDJPaph6wyKXt/Zrl/mdE95VGPaXYdMFAJmXJMHk2goxqG84kd/nvXS+e/4XNaeniBoj8Jh6VvaWQbi7SDsMn/WX+3hNznPZcccwTbxAoGAJwie378I8DLzsT2IuMPberQbs1GOSmZuFMkPFXjPciCXPRG/tU7nDy3WQNXX9EnIAicm5ZS0N41ME3r5G66FfU14iRj3vT9tgHuUFINbXyYmwMYTuKVVHfDYLkEjNoMQEA+mxtpauWGgfU4QouehCEMLxppeOtHUf/FVNt2H0jMCgYEAyK5HeBjVpLwGxo//J+GqYxLaJxnXyWQanLXdQFHda4XclgqJV1kOdFixPddBpXzEl5yqwzn/GZdr0if4QtvT7tSLLqKlK09FM3A7hYP023+1pTAFxEE5iI27bqJ/03Yt+ZVCvDk+B5LIEaDVsCMh1fbEJqYIiCMJQmAi4wqnkx4=",
@@ -32,12 +31,13 @@ func TestFullClientWorkflow(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Ошибка создания подключения: %v", err)
 	}
-	if connResp.Status != "success" || connResp.Data.UUID == "" {
+	if connResp.Status != "success" {
 		t.Fatalf("Некорректный ответ при создании подключения: %+v", connResp)
 	}
-	UUID := connResp.Data.UUID
-	log.Printf("Подключение создано успешно. UUID: %s\n", UUID)
+	ID := connResp.Data.ID
+	log.Printf("Подключение создано успешно. ID: %d\n", ID)
 
+	// -----------------------------------------------------------
 	// 2. Получение списка подключений
 	log.Println("Шаг 2: Получение списка всех подключений...")
 	listResp, _, err := api.GetConnectionPool(ctx)
@@ -49,9 +49,10 @@ func TestFullClientWorkflow(t *testing.T) {
 	}
 	log.Printf("Получено %d активных подключений.\n", listResp.Data.PoolSize)
 
+	// -----------------------------------------------------------
 	// 3. Проверка состояния
 	log.Println("Шаг 3: Проверка состояния подключения...")
-	checkConnection := models.CheckConnectionRequest{UUID: UUID}
+	checkConnection := CheckConnectionRequest{ID: ID}
 	checkResp, _, err := api.CheckConnection(ctx, &checkConnection)
 	if err != nil {
 		t.Fatalf("Ошибка проверки подключения: %v", err)
@@ -61,9 +62,10 @@ func TestFullClientWorkflow(t *testing.T) {
 	}
 	log.Printf("Состояние подключения: %s\n", checkResp.Status)
 
+	// -----------------------------------------------------------
 	// 4. Запуск опроса
 	log.Println("Шаг 4: Запуск опроса данных...")
-	pollReq := models.UUIDRequest{UUID: UUID}
+	pollReq := StartPollingRequest{ID: ID, Timeout: 5}
 	startMsg, _, err := api.StartPolling(ctx, &pollReq)
 	if err != nil {
 		t.Fatalf("Ошибка запуска опроса: %v", err)
@@ -74,17 +76,20 @@ func TestFullClientWorkflow(t *testing.T) {
 	log.Println("Ожидание 3 секунды, пока идет опрос...")
 	time.Sleep(3 * time.Second)
 
+	// -----------------------------------------------------------
 	// 5. Остановка опроса
 	log.Println("Шаг 5: Остановка опроса данных...")
-	stopMsg, _, err := api.StopPolling(ctx, &pollReq)
+	stopPollReq := IDRequest{ID: ID}
+	stopMsg, _, err := api.StopPolling(ctx, &stopPollReq)
 	if err != nil {
 		t.Fatalf("Ошибка остановки опроса: %v", err)
 	}
 	log.Printf("Ответ сервера: %v\n", stopMsg)
 
+	// -----------------------------------------------------------
 	// 6. Удаление подключения
 	log.Println("Шаг 6: Удаление подключения...")
-	deleteMsg, _, err := api.DeleteConnection(ctx, &pollReq)
+	deleteMsg, _, err := api.DeleteConnection(ctx, &stopPollReq)
 	if err != nil {
 		t.Fatalf("Ошибка удаления подключения: %v", err)
 	}

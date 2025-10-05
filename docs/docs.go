@@ -43,25 +43,25 @@ const docTemplate = `{
                     "200": {
                         "description": "Мониторинг запущен",
                         "schema": {
-                            "$ref": "#/definitions/swagger.PollingResponseSwaggerExample"
+                            "$ref": "#/definitions/swagger.PollingResponse"
                         }
                     },
                     "400": {
                         "description": "Неверный формат запроса",
                         "schema": {
-                            "$ref": "#/definitions/swagger.IncorrectFormatErrorSwaggerExample"
+                            "$ref": "#/definitions/swagger.IncorrectFormatError"
                         }
                     },
                     "404": {
                         "description": "Данные не найдены",
                         "schema": {
-                            "$ref": "#/definitions/swagger.NotFoundErrorSwaggerExample"
+                            "$ref": "#/definitions/swagger.NotFoundError"
                         }
                     },
                     "500": {
                         "description": "Внутренняя ошибка сервера",
                         "schema": {
-                            "$ref": "#/definitions/swagger.InternalServerErrorSwaggerExample"
+                            "$ref": "#/definitions/swagger.InternalServerError"
                         }
                     }
                 }
@@ -92,25 +92,25 @@ const docTemplate = `{
                     "200": {
                         "description": "Мониторинг запущен",
                         "schema": {
-                            "$ref": "#/definitions/swagger.PollingResponseSwaggerExample"
+                            "$ref": "#/definitions/swagger.PollingResponse"
                         }
                     },
                     "400": {
                         "description": "Неверный формат запроса",
                         "schema": {
-                            "$ref": "#/definitions/swagger.IncorrectFormatErrorSwaggerExample"
+                            "$ref": "#/definitions/swagger.IncorrectFormatError"
                         }
                     },
                     "404": {
                         "description": "Данные не найдены",
                         "schema": {
-                            "$ref": "#/definitions/swagger.NotFoundErrorSwaggerExample"
+                            "$ref": "#/definitions/swagger.NotFoundError"
                         }
                     },
                     "500": {
                         "description": "Внутренняя ошибка сервера",
                         "schema": {
-                            "$ref": "#/definitions/swagger.InternalServerErrorSwaggerExample"
+                            "$ref": "#/definitions/swagger.InternalServerError"
                         }
                     }
                 }
@@ -130,7 +130,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Список активных соединений",
                         "schema": {
-                            "$ref": "#/definitions/swagger.GetConnectionPoolResponseSwaggerExample"
+                            "$ref": "#/definitions/swagger.GetConnectionPoolResponse"
                         }
                     }
                 }
@@ -162,25 +162,25 @@ const docTemplate = `{
                     "200": {
                         "description": "Успешное подключение",
                         "schema": {
-                            "$ref": "#/definitions/swagger.UUIDResponseSwaggerExample"
+                            "$ref": "#/definitions/swagger.UUIDResponse"
                         }
                     },
                     "400": {
                         "description": "Неверный формат запроса или некорректные данные",
                         "schema": {
-                            "$ref": "#/definitions/swagger.IncorrectFormatErrorSwaggerExample"
+                            "$ref": "#/definitions/swagger.IncorrectFormatError"
                         }
                     },
                     "401": {
                         "description": "Некорректные данные",
                         "schema": {
-                            "$ref": "#/definitions/swagger.IncorrectDataErrorSwaggerExample"
+                            "$ref": "#/definitions/swagger.IncorrectDataError"
                         }
                     },
                     "500": {
                         "description": "Внутренняя ошибка сервера",
                         "schema": {
-                            "$ref": "#/definitions/swagger.InternalServerErrorSwaggerExample"
+                            "$ref": "#/definitions/swagger.InternalServerError"
                         }
                     }
                 }
@@ -212,25 +212,25 @@ const docTemplate = `{
                     "200": {
                         "description": "Успешное отключение",
                         "schema": {
-                            "$ref": "#/definitions/swagger.DisconnectResponseSwaggerExample"
+                            "$ref": "#/definitions/swagger.DisconnectResponse"
                         }
                     },
                     "400": {
                         "description": "Неверный формат запроса",
                         "schema": {
-                            "$ref": "#/definitions/swagger.IncorrectFormatErrorSwaggerExample"
+                            "$ref": "#/definitions/swagger.IncorrectFormatError"
                         }
                     },
                     "404": {
                         "description": "Данные не найдены",
                         "schema": {
-                            "$ref": "#/definitions/swagger.NotFoundErrorSwaggerExample"
+                            "$ref": "#/definitions/swagger.NotFoundError"
                         }
                     },
                     "500": {
                         "description": "Внутренняя ошибка сервера",
                         "schema": {
-                            "$ref": "#/definitions/swagger.InternalServerErrorSwaggerExample"
+                            "$ref": "#/definitions/swagger.InternalServerError"
                         }
                     }
                 }
@@ -264,25 +264,25 @@ const docTemplate = `{
                     "200": {
                         "description": "Информация о подключении",
                         "schema": {
-                            "$ref": "#/definitions/swagger.CheckConnectionResponseSwaggerExample"
+                            "$ref": "#/definitions/swagger.CheckConnectionResponse"
                         }
                     },
                     "400": {
                         "description": "Неверный формат запроса",
                         "schema": {
-                            "$ref": "#/definitions/swagger.IncorrectFormatErrorSwaggerExample"
+                            "$ref": "#/definitions/swagger.IncorrectFormatError"
                         }
                     },
                     "404": {
                         "description": "Данные не найдены",
                         "schema": {
-                            "$ref": "#/definitions/swagger.NotFoundErrorSwaggerExample"
+                            "$ref": "#/definitions/swagger.NotFoundError"
                         }
                     },
                     "500": {
                         "description": "Внутренняя ошибка сервера",
                         "schema": {
-                            "$ref": "#/definitions/swagger.InternalServerErrorSwaggerExample"
+                            "$ref": "#/definitions/swagger.InternalServerError"
                         }
                     }
                 }
@@ -352,9 +352,7 @@ const docTemplate = `{
         "models.ConnectionConfig": {
             "type": "object",
             "properties": {
-                "config": {
-                    "description": "Type   ConnectionTypeEnum"
-                }
+                "config": {}
             }
         },
         "models.ConnectionInfoResponse": {
@@ -560,7 +558,7 @@ const docTemplate = `{
                 }
             }
         },
-        "swagger.CheckConnectionResponseSwaggerExample": {
+        "swagger.CheckConnectionResponse": {
             "type": "object",
             "properties": {
                 "data": {
@@ -580,7 +578,7 @@ const docTemplate = `{
                 }
             }
         },
-        "swagger.DisconnectResponseSwaggerExample": {
+        "swagger.DisconnectResponse": {
             "type": "object",
             "properties": {
                 "data": {
@@ -600,7 +598,7 @@ const docTemplate = `{
                 }
             }
         },
-        "swagger.GetConnectionPoolResponseSwaggerExample": {
+        "swagger.GetConnectionPoolResponse": {
             "type": "object",
             "properties": {
                 "data": {
@@ -620,7 +618,7 @@ const docTemplate = `{
                 }
             }
         },
-        "swagger.IncorrectDataErrorSwaggerExample": {
+        "swagger.IncorrectDataError": {
             "type": "object",
             "properties": {
                 "response": {
@@ -642,7 +640,7 @@ const docTemplate = `{
                 }
             }
         },
-        "swagger.IncorrectFormatErrorSwaggerExample": {
+        "swagger.IncorrectFormatError": {
             "type": "object",
             "properties": {
                 "response": {
@@ -664,7 +662,7 @@ const docTemplate = `{
                 }
             }
         },
-        "swagger.InternalServerErrorSwaggerExample": {
+        "swagger.InternalServerError": {
             "type": "object",
             "properties": {
                 "response": {
@@ -686,7 +684,7 @@ const docTemplate = `{
                 }
             }
         },
-        "swagger.NotFoundErrorSwaggerExample": {
+        "swagger.NotFoundError": {
             "type": "object",
             "properties": {
                 "response": {
@@ -708,7 +706,7 @@ const docTemplate = `{
                 }
             }
         },
-        "swagger.PollingResponseSwaggerExample": {
+        "swagger.PollingResponse": {
             "type": "object",
             "properties": {
                 "data": {
@@ -728,7 +726,7 @@ const docTemplate = `{
                 }
             }
         },
-        "swagger.UUIDResponseSwaggerExample": {
+        "swagger.UUIDResponse": {
             "type": "object",
             "properties": {
                 "data": {

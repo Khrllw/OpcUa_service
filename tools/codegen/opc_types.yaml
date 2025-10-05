@@ -1,0 +1,132 @@
+namespace: "http://heidenhain.de/NC/"
+types:
+  - name: CutterLocationDataType
+    node_id: 5010
+    fields:
+      - name: Position
+        type: float64
+      - name: PositionEngineeringUnits
+        type: ua.EUInformation
+      - name: CoordinateName
+        type: string
+
+  - name: ProgramPositionDataType
+    node_id: 5013
+    fields:
+      - name: ProgramName
+        type: string
+      - name: BlockNumber
+        type: uint32
+      - name: BlockContent
+        type: string
+      - name: CallStackLevel
+        type: uint32
+
+  - name: ToolData
+    node_id: 5017
+    fields:
+      - name: Comment
+        type: string
+        pointer: true
+      - name: DatabaseId
+        type: string
+        pointer: true
+      - name: Name
+        type: string
+      - name: ToolIndex
+        type: int32
+      - name: ToolNumber
+        type: int32
+      - name: Type
+        type: string
+      - name: AttributeForPocket
+        type: int32
+      - name: PlcStatus
+        type: int32
+      - name: LastUsage
+        type: time.Time
+      - name: LockedStatus
+        type: int32
+      - name: AllowedOvertime
+        type: int32
+      - name: CurrentLifetime
+        type: int32
+      - name: MaximumLifetime
+        type: int32
+      - name: MaximumLifetimeToolCall
+        type: int32
+      - name: UsableLength
+        type: int32
+      - name: MaximumSpeed
+        type: float64
+        pointer: true
+      - name: LengthOffset
+        type: int32
+      - name: RadiusOffset
+        type: int32
+      - name: CarrierKinematics
+        type: string
+      - name: ReplacementToolNumber
+        type: int32
+        pointer: true
+      - name: LengthOversize
+        type: int32
+      - name: Length
+        type: int32
+      - name: NeckRadius
+        type: float64
+      - name: Radius
+        type: int32
+      - name: CuttingDirection
+        type: int32
+      - name: LengthBreakageTolerance
+        type: int32
+      - name: LengthTolerance
+        type: int32
+      - name: RadiusBreakageTolerance
+        type: int32
+      - name: RadiusTolerance
+        type: int32
+      - name: CutterEdgeLength
+        type: int32
+      - name: CuttingData
+        type: string
+      - name: ToolEdgeMaterial
+        type: string
+      - name: EdgeRadiusTolerance
+        type: int32
+      - name: Liftoff
+        type: int32
+      - name: ActiveFeedControlStrategy
+        type: string
+        pointer: true
+      - name: AfcOverloadSwitchoff
+        type: string
+        pointer: true
+      - name: AfcOverloadWarning
+        type: string
+        pointer: true
+      - name: AfcReferencePower
+        type: string
+        pointer: true
+      - name: PointAngle
+        type: int32
+      - name: RadiusAtTip
+        type: int32
+      - name: EdgeRadiusOversize
+        type: int32
+      - name: CutterEdgeRadius
+        type: int32
+      - name: NumberOfCutterEdges
+        type: int32
+      - name: RadiusOversize
+        type: int32
+      - name: MaximumPlungeAngle
+        type: int32
+      - name: FrontfaceCutterWidth
+        type: int32
+      - name: EdgeRadiusCompensationTable
+        type: string
+        pointer: true
+      - name: ActiveChatterControl
+        type: int32

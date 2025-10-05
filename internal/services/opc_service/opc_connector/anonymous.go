@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/awcullen/opcua/client"
-	connectiion_models "opc_ua_service/internal/domain/models/connection_models"
+	connectiion_models "opc_ua_service/internal/domain/models/connection_types"
 )
 
 // ConnectAnonymous Анонимное подключение
