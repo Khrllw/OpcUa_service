@@ -65,7 +65,7 @@ func TestFullClientWorkflow(t *testing.T) {
 	// -----------------------------------------------------------
 	// 4. Запуск опроса
 	log.Println("Шаг 4: Запуск опроса данных...")
-	pollReq := IDRequest{ID: ID}
+	pollReq := StartPollingRequest{ID: ID, Timeout: 5}
 	startMsg, _, err := api.StartPolling(ctx, &pollReq)
 	if err != nil {
 		t.Fatalf("Ошибка запуска опроса: %v", err)
@@ -79,7 +79,8 @@ func TestFullClientWorkflow(t *testing.T) {
 	// -----------------------------------------------------------
 	// 5. Остановка опроса
 	log.Println("Шаг 5: Остановка опроса данных...")
-	stopMsg, _, err := api.StopPolling(ctx, &pollReq)
+	stopPollReq := IDRequest{ID: ID}
+	stopMsg, _, err := api.StopPolling(ctx, &stopPollReq)
 	if err != nil {
 		t.Fatalf("Ошибка остановки опроса: %v", err)
 	}
@@ -88,7 +89,7 @@ func TestFullClientWorkflow(t *testing.T) {
 	// -----------------------------------------------------------
 	// 6. Удаление подключения
 	log.Println("Шаг 6: Удаление подключения...")
-	deleteMsg, _, err := api.DeleteConnection(ctx, &pollReq)
+	deleteMsg, _, err := api.DeleteConnection(ctx, &stopPollReq)
 	if err != nil {
 		t.Fatalf("Ошибка удаления подключения: %v", err)
 	}

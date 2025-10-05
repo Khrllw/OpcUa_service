@@ -29,6 +29,11 @@ type IDRequest struct {
 	ID uint `json:"ID" binding:"required"`
 }
 
+type StartPollingRequest struct {
+	ID      uint `json:"ID" binding:"required"`
+	Timeout int  `json:"timeout" binding:"required"`
+}
+
 // CheckConnectionRequest - проверка соединения
 type CheckConnectionRequest struct {
 	ID uint `json:"ID" binding:"required"`

@@ -15,7 +15,7 @@ type ClientAPI interface {
 	GetConnectionPool(ctx context.Context) (*swagger.GetConnectionPoolResponse, *http.Response, error)
 	DeleteConnection(ctx context.Context, req *IDRequest) (*swagger.DisconnectResponse, *http.Response, error)
 	CheckConnection(ctx context.Context, req *CheckConnectionRequest) (*swagger.CheckConnectionResponse, *http.Response, error)
-	StartPolling(ctx context.Context, req *IDRequest) (*swagger.PollingResponse, *http.Response, error)
+	StartPolling(ctx context.Context, req *StartPollingRequest) (*swagger.PollingResponse, *http.Response, error)
 	StopPolling(ctx context.Context, req *IDRequest) (*swagger.PollingResponse, *http.Response, error)
 }
 
@@ -136,7 +136,7 @@ func (c *Client) CheckConnection(ctx context.Context, req *CheckConnectionReques
 }
 
 // StartPolling запускает опрос OPC UA по UUID станка
-func (c *Client) StartPolling(ctx context.Context, req *IDRequest) (*swagger.PollingResponse, *http.Response, error) {
+func (c *Client) StartPolling(ctx context.Context, req *StartPollingRequest) (*swagger.PollingResponse, *http.Response, error) {
 	const endpoint = "/api/v1/polling/start"
 
 	reqBody, err := json.Marshal(req)
