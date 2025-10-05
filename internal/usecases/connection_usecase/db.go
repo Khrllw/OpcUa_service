@@ -3,13 +3,13 @@ package connection_usecase
 import (
 	"github.com/google/uuid"
 	"opc_ua_service/internal/domain/entities"
-	connection_models "opc_ua_service/internal/domain/models/connection_models"
+	connection_models "opc_ua_service/internal/domain/models/connection_types"
 	"opc_ua_service/pkg/errors"
 )
 
 // CreateMachineRecord создает запись в БД
-func (u *ConnectionUsecase) CreateMachineRecord(newMachine entities.CncMachine) (string, *errors.AppError) {
-	var empty = ""
+func (u *ConnectionUsecase) CreateMachineRecord(newMachine entities.CncMachine) (entities.CncMachine, *errors.AppError) {
+	var empty = entities.CncMachine{}
 	machineUUID, err := u.MachineRepo.CreateCncMachine(newMachine)
 	if err != nil {
 		return empty, errors.NewAppError(errors.InternalServerErrorCode, "failed to create machine record", err, false)
@@ -20,7 +20,7 @@ func (u *ConnectionUsecase) CreateMachineRecord(newMachine entities.CncMachine) 
 	if err != nil {
 		return empty, errors.NewAppError(errors.InternalServerErrorCode, "failed to check machine connection", err, false)
 	}
-	return addedMachine.UUID, nil
+	return addedMachine, nil
 }
 
 // CreateCertRecord создает запись в БД

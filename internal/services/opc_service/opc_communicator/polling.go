@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-func (o *OpcCommunicator) StartPollingForMachine(id uuid.UUID) error {
+func (o *OpcCommunicator) StartPollingForMachine(id uuid.UUID, interval time.Duration) error {
 	connInfo, err := o.connector.GetConnectionInfoByUUID(id)
 	if err != nil {
 		return err
@@ -28,7 +28,6 @@ func (o *OpcCommunicator) StartPollingForMachine(id uuid.UUID) error {
 	o.pollCancelMap[id] = cancel
 	o.mu.Unlock()
 
-	interval := connInfo.Config.Config.GetTimeout()
 	connInfo.IsPolled = true
 	go func() {
 		ticker := time.NewTicker(interval)
@@ -37,7 +36,7 @@ func (o *OpcCommunicator) StartPollingForMachine(id uuid.UUID) error {
 		for {
 			select {
 			case <-ctx.Done():
-				o.logger.Info("Stopped polling for machine %s", connInfo.SessionID)
+				o.logger.Info(fmt.Sprintf("Stopped polling for machine %s", connInfo.SessionID))
 				connInfo.IsPolled = false
 				return
 			case <-ticker.C:
@@ -51,7 +50,7 @@ func (o *OpcCommunicator) StartPollingForMachine(id uuid.UUID) error {
 					dataJSON := data.ToJSON()
 					err = o.producer.Produce(context.Background(), []byte(dataResponse.MachineId), []byte(dataJSON))
 					if err != nil {
-						o.logger.Error("Failed to send data to Kafka", "machineId", dataResponse.MachineId, "error", err)
+						o.logger.Error("Failed to send data to Kafka", "machineId", connInfo.SessionID, "error", err)
 					}
 				} else {
 					o.logger.Error("Connection failed", "UUID", id)
@@ -62,7 +61,7 @@ func (o *OpcCommunicator) StartPollingForMachine(id uuid.UUID) error {
 						connInfo.IsPolled = false
 						return
 					}
-					err = o.StartPollingForMachine(*reconnectedUUID)
+					err = o.StartPollingForMachine(*reconnectedUUID, interval)
 					if err != nil {
 						o.logger.Error("Failed to start polling for reconnected machine %s", reconnectedUUID)
 					}
@@ -86,6 +85,6 @@ func (o *OpcCommunicator) StopPollingForMachine(id uuid.UUID) error {
 	o.mu.Unlock()
 
 	cancel()
-	o.logger.Info("Polling manually stopped for machine %s", id)
+	o.logger.Info(fmt.Sprintf("Polling manually stopped for machine %s", id))
 	return nil
 }

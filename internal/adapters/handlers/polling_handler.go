@@ -3,70 +3,59 @@ package handlers
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
-	"opc_ua_service/internal/domain/models"
+	"opc_ua_service/internal/domain/models/connection"
 )
 
-// StartPollingByUUID запускает мониторинг для одного станка
+// StartPollingByID запускает мониторинг для одного станка
 // @Summary Запустить мониторинг станка
 // @Description Запускает опрос OPC UA для конкретного станка по UUID
 // @Tags Polling
 // @Produce json
-// @Param input body models.UUIDRequest true "UUID станка"
+// @Param input body models.IDRequest true "ID станка"
 // @Success 200 {object} swagger.PollingResponse "Мониторинг запущен"
 // @Failure 400 {object} swagger.IncorrectFormatError "Неверный формат запроса"
 // @Failure 404 {object} swagger.NotFoundError "Данные не найдены"
 // @Failure 500 {object} swagger.InternalServerError "Внутренняя ошибка сервера"
 // @Router /api/v1/polling/start [get]
-func (h *Handler) StartPollingByUUID(c *gin.Context) {
-	var req models.UUIDRequest
+func (h *Handler) StartPollingByID(c *gin.Context) {
+	var req connection.StartPollingRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		h.BadRequest(c, err)
 		return
 	}
-	id, err := uuid.Parse(req.UUID)
-	if err != nil {
-		h.BadRequest(c, fmt.Errorf("incorrect UUID: %s", req.UUID))
-		return
-	}
 
-	eerr := h.usecase.StartPollingMachine(id)
+	eerr := h.usecase.StartPollingMachine(req)
 	if eerr != nil {
 		h.ErrorResponse(c, eerr, eerr.Code, eerr.Message, false)
 		return
 	}
 
-	h.ResultResponse(c, fmt.Sprintf("Polling started for machine %s", id), Object, models.PollingResponse{Polled: true})
+	h.ResultResponse(c, fmt.Sprintf("Polling started for machine %d", req.ID), Object, connection.PollingResponse{Polled: true})
 }
 
-// StopPollingByUUID останавливает мониторинг для одного станка
+// StopPollingByID останавливает мониторинг для одного станка
 // @Summary Остановить мониторинг станка
 // @Description Останавливает опрос OPC UA для конкретного станка по UUID
 // @Tags Polling
 // @Produce json
-// @Param input body models.UUIDRequest true "UUID станка"
+// @Param input body models.IDRequest true "UUID станка"
 // @Success 200 {object} swagger.PollingResponse "Мониторинг запущен"
 // @Failure 400 {object} swagger.IncorrectFormatError "Неверный формат запроса"
 // @Failure 404 {object} swagger.NotFoundError "Данные не найдены"
 // @Failure 500 {object} swagger.InternalServerError "Внутренняя ошибка сервера"
 // @Router /api/v1/polling/stop [get]
-func (h *Handler) StopPollingByUUID(c *gin.Context) {
-	var req models.UUIDRequest
+func (h *Handler) StopPollingByID(c *gin.Context) {
+	var req connection.IDRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		h.BadRequest(c, err)
 		return
 	}
-	id, err := uuid.Parse(req.UUID)
-	if err != nil {
-		h.BadRequest(c, fmt.Errorf("incorrect UUID: %s", req.UUID))
-		return
-	}
 
-	eerr := h.usecase.StopPollingMachine(id)
+	eerr := h.usecase.StopPollingMachine(req.ID)
 	if eerr != nil {
 		h.ErrorResponse(c, eerr, eerr.Code, eerr.Message, false)
 		return
 	}
 
-	h.ResultResponse(c, fmt.Sprintf("Polling stopped for machine %s", id), Object, models.PollingResponse{Polled: false})
+	h.ResultResponse(c, fmt.Sprintf("Polling stopped for machine %d", req.ID), Object, connection.PollingResponse{Polled: false})
 }

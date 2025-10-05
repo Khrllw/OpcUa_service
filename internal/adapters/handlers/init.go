@@ -13,7 +13,6 @@ import (
 type Handler struct {
 	logger  *logging.Logger
 	usecase interfaces.Usecases
-	service interfaces.OpcService
 }
 
 // NewHandler создает новый экземпляр Handler со всеми зависимостями
@@ -25,7 +24,6 @@ func NewHandler(usecase interfaces.Usecases, parentLogger *logging.Logger, servi
 	return &Handler{
 		logger:  handlerLogger,
 		usecase: usecase,
-		service: service,
 	}
 }
 
@@ -52,10 +50,8 @@ func ProvideRouter(h *Handler, cfg *config.Config, swagCfg *swagger.Config) http
 
 	// Мониторинг
 	pollingGroup := baseRouter.Group("/polling")
-	pollingGroup.GET("/start", h.StartPollingByUUID)
-	pollingGroup.GET("/stop", h.StopPollingByUUID)
-
-	//baseRouter.GET("/control", h.GetControlProgram) // Получить управляющую программу
+	pollingGroup.GET("/start", h.StartPollingByID) // Начать опрос
+	pollingGroup.GET("/stop", h.StopPollingByID)   // Остановить опрос
 
 	return r
 }

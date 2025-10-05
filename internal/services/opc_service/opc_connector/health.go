@@ -7,7 +7,7 @@ import (
 	"github.com/awcullen/opcua/ua"
 	"github.com/google/uuid"
 	"opc_ua_service/internal/domain/models"
-	connection_models "opc_ua_service/internal/domain/models/connection_models"
+	connection_models "opc_ua_service/internal/domain/models/connection_types"
 	"time"
 )
 
@@ -89,7 +89,7 @@ func (oc *OpcConnector) Reconnect(ID uuid.UUID, info *models.ConnectionInfo) (*u
 
 	switch cfg := info.Config.Config.(type) {
 	case *connection_models.CertificateConnection:
-		UUID, err = oc.CreateCertificateConnection(*cfg)
+		UUID, err = oc.CreateCertificateConnection(*cfg, &ID)
 		if err != nil {
 			return nil, err
 		}

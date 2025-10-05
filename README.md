@@ -117,190 +117,24 @@ go run cmd/app/main.go
 ## **🌐 API ENDPOINTS**
 </div>
 
-### Создание подключения ( POST /api/v1/connect )
+### 1. Создание подключения
+  POST /api/v1/connect 
 
-```json
-{
-  // Тип соединения с OPC UA сервером
-  // Возможные значения:
-  // "certificate" - аутентификация по сертификату и ключу
-  // "password"    - аутентификация по имени пользователя и паролю
-  // "anonymous"   - анонимное соединение без логина и пароля
-  "connectionType": "certificate",
+### 2. Получить пул подключений
+  GET /api/v1/connect
 
-  // Имя пользователя (используется только если connectionType = "password")
-  "username": "<your_username_here>",
+### 3. Закрыть подключение
+  DELETE /api/v1/connect
 
-  // Пароль пользователя (используется только если connectionType = "password")
-  "password": "<your_password_here>",
+### 4. Проверить подключение
+  POST /api/v1/connect/check
 
-  // Файл сертификата (используется только если connectionType = "certificate")
-  "certificate": "<Base64_encoded_bytes_of_certificate>",
-  
-  // Путь к приватному ключу (используется только если connectionType = "certificate")
-  "key": "<Base64_encoded_bytes_of_key>",
+### 5. Начать сбор данных
+  GET /api/v1/polling/start
 
-  // URL OPC UA сервера
-  "endpointURL": "opc.tcp://KHRLLW_-340595:4840/HEIDENHAIN/NC",
+### 6. Остановить сбор данных
+  GET /api/v1/polling/stop
 
-  // Режим безопасности сообщений
-  // Возможные значения: "None", "Sign", "SignAndEncrypt"
-  "mode": "SignAndEncrypt",
-
-  // Политика безопасности OPC UA
-  // Примеры: "Basic256Sha256", "Basic256", "Basic128Rsa15", "None"
-  "policy": "Basic256Sha256",
-
-  // Таймаут опроса в секундах
-  "timeout": 5,
-
-  // Производитель станка
-  "manufacturer": "Heidenhain",
-
-  // Модель станка
-  "model": "TNC640"
-}
-```
-
-```json
-{
-  "data": {
-    "UUID": "848f855f-f4c2-45f1-a216-c9fa64a6369f"
-  },
-  "message": "Successfully connected",
-  "status": "success",
-  "type": "object"
-}
-```
-
-### Получить пул подключений ( GET /api/v1/connect )
-
-```json
-{
-  "data": {
-    "poolSize": 1,
-    "connections": [
-      {
-        "status": "HEALTHY",
-        "description": "Connection is healthy and responsive",
-        "UUID": "6b0af31a-badc-418a-893e-a878e144adae",
-        "sessionID": "ns=3;i=2623872058",
-        "config": {
-          "type": "certificate",
-          "connection": {
-            "EndpointURL": "opc.tcp://KHRLLW_-340595:4840/HEIDENHAIN/NC",
-            "Certificate": "<Base64_encoded_bytes_of_certificate>",
-            "Key": "<Base64_encoded_bytes_of_key>",
-            "Policy": "Basic256Sha256",
-            "Mode": "SignAndEncrypt",
-            "Timeout": 3000000000, // в миллисекундах
-            "Manufacturer": "Heidenhain",
-            "Model": "TNC640"
-          }
-        },
-        "createdAt": "2025-09-03T19:00:47.7478375+03:00",
-        "lastUsed": "2025-09-03T19:00:47.7478375+03:00",
-        "useCount": 1
-      }
-    ]
-  },
-  "message": "Successfully get connection pool",
-  "status": "success",
-  "type": "object"
-}
-```
-
-### Закрыть подключение ( DELETE /api/v1/connect )
-
-```json
-{
-  "UUID": "ns=3;i=3948713892"
-}
-```
-
-```json
-{
-  "data": {
-    "disconnected": true
-  },
-  "message": "Successfully disconnected",
-  "status": "success",
-  "type": "object"
-}
-```
-
-### Проверить подключение ( POST /api/v1/connect/check )
-
-```json
-{
-  "UUID": "ns=3;i=3948713891"
-}
-```
-
-```json
-{
-  "data": {
-    "status": "HEALTHY",
-    "description": "Connection is healthy and responsive",
-    "UUID": "6b0af31a-badc-418a-893e-a878e144adae",
-    "sessionID": "ns=3;i=2623872058",
-    "config": {
-      "type": "certificate",
-      "connection": {
-        "EndpointURL": "opc.tcp://KHRLLW_-340595:4840/HEIDENHAIN/NC",
-        "Certificate": "<Base64_encoded_bytes_of_certificate>",
-        "Key": "<Base64_encoded_bytes_of_key>",
-        "Policy": "Basic256Sha256",
-        "Mode": "SignAndEncrypt",
-        "Timeout": 3000000000, // в миллисекундах
-        "Manufacturer": "Heidenhain",
-        "Model": "TNC640"
-      },
-      "createdAt": "2025-09-03T19:00:47.7478375+03:00",
-      "lastUsed": "2025-09-03T19:00:47.7478375+03:00",
-      "useCount": 1
-    }
-  },
-  "message": "Successfully get connection info",
-  "status": "success",
-  "type": "object"
-}
-```
-### Начать сбор данных ( GET /api/v1/polling/start )
-```json
-{
-"UUID": "848f855f-f4c2-45f1-a216-c9fa64a6369f"
-}
-```
-
-```json
-{
-  "data": {
-    "polled": true
-  },
-  "message": "Polling started for machine 848f855f-f4c2-45f1-a216-c9fa64a6369f",
-  "status": "success",
-  "type": "object"
-}
-```
-
-### Остановить сбор данных ( GET /api/v1/polling/stop )
-```json
-{
-  "UUID": "12840be9-36b2-4ecb-8243-b9d9e0952a03"
-}
-```
-
-```json
-{
-  "data": {
-    "polled": false
-  },
-  "message": "Polling stopped for machine 12840be9-36b2-4ecb-8243-b9d9e0952a03",
-  "status": "success",
-  "type": "object"
-}
-```
 
 <div align="center">
 
@@ -337,7 +171,11 @@ OpcUa_service/
 │   ├── 📁 client/                     # Клиентская библиотека для API
 │   ├── 📁 opc_custom/                 # Зарегистрированные OPC UA структуры
 │   └── 📁 machine_models/             # Поддерживаемые модели ЧПУ 
-├── tools/build/
+├── tools
+│   ├── codegen/                        
+│   │   ├── 📄 opc_types.yaml          # Конфиг кастомных структур OPC UA
+│   │   └── 📄 codegen.go              # Скрипт для генерации кастомных структур OPC UA
+│   └── build/
 │       └── 📄 build.go                # Скрипт для сборки исполняемых файлов
 ├── 📁 build/                          # Папка с готовыми исполняемыми файлами
 ├── 📄 .env                            # Файл конфигурации

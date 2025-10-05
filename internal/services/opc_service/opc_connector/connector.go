@@ -8,7 +8,7 @@ import (
 	"github.com/google/uuid"
 	"log"
 	"opc_ua_service/internal/domain/models"
-	connection_models "opc_ua_service/internal/domain/models/connection_models"
+	connection_models "opc_ua_service/internal/domain/models/connection_types"
 	"opc_ua_service/internal/interfaces"
 	"opc_ua_service/internal/middleware/logging"
 	_ "opc_ua_service/pkg/opc_custom"
@@ -84,7 +84,7 @@ func (oc *OpcConnector) CreatePasswordConnection(config connection_models.Passwo
 }
 
 // CreateCertificateConnection создаёт новое подключение и сохраняет его по UUID
-func (oc *OpcConnector) CreateCertificateConnection(config connection_models.CertificateConnection) (*uuid.UUID, error) {
+func (oc *OpcConnector) CreateCertificateConnection(config connection_models.CertificateConnection, uu_id *uuid.UUID) (*uuid.UUID, error) {
 	// Создаем новое подключение
 	conn, err := oc.ConnectWithCertificate(config)
 	if err != nil {
@@ -118,12 +118,11 @@ func (oc *OpcConnector) CreateCertificateConnection(config connection_models.Cer
 	oc.mu.Lock()
 	defer oc.mu.Unlock()
 
-	id := GenerateUUID()
-	if _, exists := oc.connections[id]; exists {
-		// Если по какой-то причине соединение уже есть, закрываем новое
-		info.Cancel()
-		_ = conn.Close(ctx)
-		return &id, nil
+	var id uuid.UUID
+	if uu_id == nil {
+		id = GenerateUUID()
+	} else {
+		id = *uu_id
 	}
 
 	oc.connections[id] = info

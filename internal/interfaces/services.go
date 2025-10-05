@@ -8,7 +8,7 @@ import (
 	"github.com/awcullen/opcua/ua"
 	"github.com/google/uuid"
 	"opc_ua_service/internal/domain/models"
-	connection_models "opc_ua_service/internal/domain/models/connection_models"
+	connection_models "opc_ua_service/internal/domain/models/connection_types"
 	"opc_ua_service/pkg/opc_custom"
 	"time"
 )
@@ -35,7 +35,7 @@ type OpcConnectorService interface {
 	GetConnection(config connection_models.CertificateConnection) (*client.Client, error)
 	CreateAnonymousConnection(config connection_models.AnonymousConnection) (*uuid.UUID, error)
 	CreatePasswordConnection(config connection_models.PasswordConnection) (*uuid.UUID, error)
-	CreateCertificateConnection(config connection_models.CertificateConnection) (*uuid.UUID, error)
+	CreateCertificateConnection(config connection_models.CertificateConnection, uu_id *uuid.UUID) (*uuid.UUID, error)
 	Reconnect(ID uuid.UUID, info *models.ConnectionInfo) (*uuid.UUID, error)
 	CloseAll()
 	GetConnectionByUUID(id uuid.UUID) (*client.Client, error)
@@ -56,6 +56,6 @@ type OpcCommunicatorService interface {
 	CallOPCMethod(ctx context.Context, c *client.Client, objectNodeID, methodNodeID ua.NodeID, inputArgs ...ua.Variant) ([]ua.Variant, error)
 	ReadMachineData(id uuid.UUID) (MachineData, error)
 	GetControlProgramInfo(id uuid.UUID) ([]opc_custom.ProgramPositionDataType, error)
-	StartPollingForMachine(id uuid.UUID) error
+	StartPollingForMachine(id uuid.UUID, timeout time.Duration) error
 	StopPollingForMachine(id uuid.UUID) error
 }

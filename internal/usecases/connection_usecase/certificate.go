@@ -4,39 +4,23 @@ import (
 	"fmt"
 	"log"
 	"opc_ua_service/internal/domain/entities"
-	"opc_ua_service/internal/domain/models"
-	connection_models "opc_ua_service/internal/domain/models/connection_models"
+	"opc_ua_service/internal/domain/models/connection"
+	connection_models "opc_ua_service/internal/domain/models/connection_types"
 	"opc_ua_service/pkg/errors"
 	"strings"
 	"time"
 )
 
-// validateCertificateRequest проверяет обязательные поля для подключения по сертификату
-func (u *ConnectionUsecase) validateCertificateRequest(request models.ConnectionRequest) error {
-	if strings.TrimSpace(request.EndpointURL) == "" {
-		return fmt.Errorf("endpoint URL is required")
-	}
-	if strings.TrimSpace(request.Certificate) == "" {
-		return fmt.Errorf("certificate is required")
-	}
-	if strings.TrimSpace(request.Key) == "" {
-		return fmt.Errorf("private key is required")
-	}
-	return nil
-}
-
-// ----------------------------------------------------------------------------------------------------------------
-
 // ConnectWithCertificate выполняет подключение по сертификату и создает записи в БД
-func (u *ConnectionUsecase) ConnectWithCertificate(request models.ConnectionRequest) (models.UUIDResponse, *errors.AppError) {
-	var empty models.UUIDResponse
+func (u *ConnectionUsecase) ConnectWithCertificate(request connection.ConnectionRequest) (entities.CncMachine, *errors.AppError) {
+	empty := entities.CncMachine{}
 
 	// Валидация и подготовка структуры соединения
 	if err := u.validateCertificateRequest(request); err != nil {
 		return empty, errors.NewAppError(errors.InvalidDataCode, "validation failed", err, true)
 	}
 
-	connReq, err := u.NewCertificateConnectionFromRequest(&request)
+	connReq, err := u.newCertificateConnectionFromRequest(&request)
 	if err != nil {
 		return empty, errors.NewAppError(errors.InvalidDataCode, "invalid request", err, true)
 	}
@@ -52,32 +36,35 @@ func (u *ConnectionUsecase) ConnectWithCertificate(request models.ConnectionRequ
 		Key:          connReq.Key,
 		Policy:       connReq.Policy,
 		Mode:         connReq.Mode,
-		Timeout:      time.Duration(request.Timeout) * time.Second,
 		Manufacturer: connReq.Manufacturer,
 		Model:        connReq.Model,
 	}
 
-	// Проверка существующей машины и закрытие старого соединения
-	if err := u.handleExistingMachine(config.EndpointURL); err != nil {
+	// Проверка существующей машины
+	cfg := connection_models.ConnectionConfig{
+		Config: &config,
+	}
+
+	if err := u.handleExistingMachine(cfg); err != nil {
 		return empty, err
 	}
 
 	// Создание нового соединения и запись в БД
-	machineUUID, eerr := u.createNewCertificateConnection(config)
+	machine, eerr := u.createNewCertificateConnection(config)
 	if eerr != nil {
 		return empty, eerr
 	}
 
-	log.Printf("✅ Successfully connected with UUID: %s", machineUUID)
-	return models.UUIDResponse{UUID: machineUUID}, nil
+	log.Printf("Successfully connected with ID: %d", machine.ID)
+	return machine, nil
 }
 
 // createNewCertificateConnection создает соединение в сервисе и записи в БД
-func (u *ConnectionUsecase) createNewCertificateConnection(config connection_models.CertificateConnection) (string, *errors.AppError) {
-
-	connID, err := u.OpcService.CreateCertificateConnection(config)
+func (u *ConnectionUsecase) createNewCertificateConnection(config connection_models.CertificateConnection) (entities.CncMachine, *errors.AppError) {
+	empty := entities.CncMachine{}
+	connID, err := u.OpcService.CreateCertificateConnection(config, nil)
 	if err != nil {
-		return "", errors.NewAppError(errors.InternalServerErrorCode, "failed to create connection for machine", err, false)
+		return empty, errors.NewAppError(errors.InternalServerErrorCode, "failed to create connection for machine", err, false)
 	}
 
 	newCert := entities.CertificateConnection{
@@ -88,7 +75,7 @@ func (u *ConnectionUsecase) createNewCertificateConnection(config connection_mod
 	}
 	certID, eerr := u.CreateCertRecord(newCert)
 	if eerr != nil {
-		return "", eerr
+		return empty, eerr
 	}
 
 	newMachine := entities.CncMachine{
@@ -97,23 +84,29 @@ func (u *ConnectionUsecase) createNewCertificateConnection(config connection_mod
 		Model:                   config.Model,
 		Manufacturer:            config.Manufacturer,
 		Status:                  connection_models.ConnectionStatusConnected,
-		Interval:                int(config.Timeout.Seconds()),
+		PollTimeout:             int(config.Timeout.Seconds()),
 		ConnectionType:          "certificate",
 		CertificateConnectionID: &certID,
 	}
 
-	machineUUID, eerr := u.CreateMachineRecord(newMachine)
+	machine, eerr := u.CreateMachineRecord(newMachine)
 	if eerr != nil {
-		return "", eerr
+		return empty, eerr
 	}
 
-	return machineUUID, nil
+	info, err := u.OpcService.GetConnectionInfoByUUID(*connID)
+	if err != nil {
+		return entities.CncMachine{}, nil
+	}
+	info.MachineID = machine.ID
+
+	return machine, nil
 }
 
 // ----------------------------------------------------------------------------------------------------------------
 
-// NewCertificateConnectionFromRequest Конструктор из ConnectionRequest
-func (u *ConnectionUsecase) NewCertificateConnectionFromRequest(req *models.ConnectionRequest) (connection_models.CertificateConnection, error) {
+// newCertificateConnectionFromRequest Конструктор из ConnectionRequest
+func (u *ConnectionUsecase) newCertificateConnectionFromRequest(req *connection.ConnectionRequest) (connection_models.CertificateConnection, error) {
 	var empty connection_models.CertificateConnection
 
 	// Попытка распарсить сертификат (Base64 -> []byte)
@@ -141,8 +134,23 @@ func (u *ConnectionUsecase) NewCertificateConnectionFromRequest(req *models.Conn
 		Key:          parsedKey,
 		Policy:       string(req.Policy),
 		Mode:         string(req.Mode),
-		Timeout:      time.Duration(req.Timeout) * time.Second,
 		Manufacturer: req.Manufacturer,
 		Model:        req.Model,
 	}, nil
+}
+
+// ----------------------------------------------------------------------------------------------------------------
+
+// validateCertificateRequest проверяет обязательные поля для подключения по сертификату
+func (u *ConnectionUsecase) validateCertificateRequest(request connection.ConnectionRequest) error {
+	if strings.TrimSpace(request.EndpointURL) == "" {
+		return fmt.Errorf("endpoint URL is required")
+	}
+	if strings.TrimSpace(request.Certificate) == "" {
+		return fmt.Errorf("certificate is required")
+	}
+	if strings.TrimSpace(request.Key) == "" {
+		return fmt.Errorf("private key is required")
+	}
+	return nil
 }

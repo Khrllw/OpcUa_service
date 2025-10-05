@@ -4,57 +4,52 @@ import (
 	"fmt"
 	"log"
 	"opc_ua_service/internal/domain/entities"
-	"opc_ua_service/internal/domain/models"
-	connection_models "opc_ua_service/internal/domain/models/connection_models"
+	"opc_ua_service/internal/domain/models/connection"
+	connection_models "opc_ua_service/internal/domain/models/connection_types"
 	"opc_ua_service/pkg/errors"
 	"strings"
 	"time"
 )
 
-// validateAnonymousRequest проверяет обязательные поля для подключения анонимно
-func (u *ConnectionUsecase) validateAnonymousRequest(request models.ConnectionRequest) error {
-	if strings.TrimSpace(request.EndpointURL) == "" {
-		return fmt.Errorf("endpoint URL is required")
-	}
-	return nil
-}
-
-// ----------------------------------------------------------------------------------------------------------------
-
 // ConnectAnonymous - анонимное подключение
-func (u *ConnectionUsecase) ConnectAnonymous(request models.ConnectionRequest) (models.UUIDResponse, *errors.AppError) {
-	var empty models.UUIDResponse
+func (u *ConnectionUsecase) ConnectAnonymous(request connection.ConnectionRequest) (entities.CncMachine, *errors.AppError) {
+	var empty entities.CncMachine
 
 	if err := u.validateAnonymousRequest(request); err != nil {
 		return empty, errors.NewAppError(errors.InvalidDataCode, "validation failed", err, true)
 	}
 
-	connReq := NewAnonymousConnectionFromRequest(&request)
+	config := newAnonymousConnectionFromRequest(&request)
 
 	// Проверка доступности endpoint
-	if err := isEndpointReachable(connReq.EndpointURL, 5*time.Second); err != nil {
+	if err := isEndpointReachable(config.EndpointURL, 5*time.Second); err != nil {
 		return empty, errors.NewAppError(errors.InternalServerErrorCode, "endpoint is not reachable", err, false)
 	}
 
-	if err := u.handleExistingMachine(connReq.EndpointURL); err != nil {
+	// Проверка существующей машины
+	cfg := connection_models.ConnectionConfig{
+		Config: config,
+	}
+	if err := u.handleExistingMachine(cfg); err != nil {
 		return empty, err
 	}
 
-	machineUUID, err := u.createNewAnonymousConnection(connReq)
+	machine, err := u.createNewAnonymousConnection(config)
 	if err != nil {
 		return empty, err
 	}
 
-	log.Printf("✅ Successfully connected with UUID: %s", machineUUID)
-	return models.UUIDResponse{UUID: machineUUID}, nil
+	log.Printf("Successfully connected with ID: %s", machine.ID)
+	return machine, nil
 }
 
 // createNewAnonymousConnection создает анонимное соединение в сервисе и записи в БД
-func (u *ConnectionUsecase) createNewAnonymousConnection(connReq *connection_models.AnonymousConnection) (string, *errors.AppError) {
+func (u *ConnectionUsecase) createNewAnonymousConnection(connReq *connection_models.AnonymousConnection) (entities.CncMachine, *errors.AppError) {
+	empty := entities.CncMachine{}
 
 	connID, err := u.OpcService.CreateAnonymousConnection(*connReq)
 	if err != nil {
-		return "", errors.NewAppError(errors.InternalServerErrorCode, "failed to create anonymous connection for machine", err, false)
+		return empty, errors.NewAppError(errors.InternalServerErrorCode, "failed to create anonymous connection for machine", err, false)
 	}
 
 	newAnon := entities.AnonymousConnection{
@@ -63,7 +58,7 @@ func (u *ConnectionUsecase) createNewAnonymousConnection(connReq *connection_mod
 	}
 	anonID, eerr := u.CreateAnonRecord(newAnon)
 	if eerr != nil {
-		return "", eerr
+		return empty, eerr
 	}
 
 	newMachine := entities.CncMachine{
@@ -72,26 +67,35 @@ func (u *ConnectionUsecase) createNewAnonymousConnection(connReq *connection_mod
 		Model:                 connReq.Model,
 		Manufacturer:          connReq.Manufacturer,
 		Status:                connection_models.ConnectionStatusConnected,
-		Interval:              int(connReq.Timeout.Seconds()),
+		PollTimeout:           int(connReq.Timeout.Seconds()),
 		ConnectionType:        connection_models.ConnectionAnonymous,
 		AnonymousConnectionID: &anonID,
 	}
-	machineUUID, eerr := u.CreateMachineRecord(newMachine)
+	machine, eerr := u.CreateMachineRecord(newMachine)
 	if eerr != nil {
-		return "", eerr
+		return empty, eerr
 	}
 
-	return machineUUID, nil
+	return machine, nil
 }
 
 // ----------------------------------------------------------------------------------------------------------------
 
-// NewAnonymousConnectionFromRequest Конструктор из ConnectionRequest
-func NewAnonymousConnectionFromRequest(req *models.ConnectionRequest) *connection_models.AnonymousConnection {
+// newAnonymousConnectionFromRequest Конструктор из ConnectionRequest
+func newAnonymousConnectionFromRequest(req *connection.ConnectionRequest) *connection_models.AnonymousConnection {
 	return &connection_models.AnonymousConnection{
 		EndpointURL:  req.EndpointURL,
-		Timeout:      time.Duration(req.Timeout) * time.Second,
 		Manufacturer: req.Manufacturer,
 		Model:        req.Model,
 	}
+}
+
+// ----------------------------------------------------------------------------------------------------------------
+
+// validateAnonymousRequest проверяет обязательные поля для подключения анонимно
+func (u *ConnectionUsecase) validateAnonymousRequest(request connection.ConnectionRequest) error {
+	if strings.TrimSpace(request.EndpointURL) == "" {
+		return fmt.Errorf("endpoint URL is required")
+	}
+	return nil
 }

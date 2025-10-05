@@ -95,7 +95,7 @@ func InvokeGracefulShutdown(lc fx.Lifecycle, connector interfaces.OpcService, pr
 	})
 }
 
-// Swagger-конфигуратор
+// NewSwaggerConfig Swagger-конфигуратор
 func NewSwaggerConfig(cfg *config.Config) *swagger.Config {
 	return &swagger.Config{
 		Enabled: true,
@@ -162,6 +162,7 @@ func InvokeRestoreConnections(lc fx.Lifecycle, uc interfaces.Usecases, dbRepo in
 						logger.Warn("Connection restored in pool but is unhealthy. Will retry in background.", "UUID", machine.UUID)
 					} else {
 						logger.Warn("Connection could not be restored", "UUID", machine.UUID, "error", eerr)
+						//TODO: Update
 					}
 				}
 			}()

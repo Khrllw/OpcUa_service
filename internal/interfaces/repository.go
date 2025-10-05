@@ -14,6 +14,7 @@ type Repository interface {
 type CncMachineRepository interface {
 	CreateCncMachine(cnc entities.CncMachine) (string, error)
 	GetCncMachineByUUID(id string) (entities.CncMachine, error)
+	GetCncMachineByID(id uint) (entities.CncMachine, error)
 	GetCncMachineByEndpointURL(endpoint string) (entities.CncMachine, error)
 	UpdateCncMachine(id string, updateMap map[string]interface{}) (string, error)
 	DeleteCncMachine(id string) error

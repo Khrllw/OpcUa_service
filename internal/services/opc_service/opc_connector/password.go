@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/awcullen/opcua/client"
-	connection_models "opc_ua_service/internal/domain/models/connection_models"
+	connection_models "opc_ua_service/internal/domain/models/connection_types"
 )
 
 // ConnectWithPassword Подключение с логином и паролем

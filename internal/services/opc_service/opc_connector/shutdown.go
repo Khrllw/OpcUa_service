@@ -70,13 +70,11 @@ func (oc *OpcConnector) CloseConnection(id uuid.UUID) error {
 
 	info, exists := oc.connections[id]
 	if !exists || info == nil {
-		oc.mu.Unlock()
 		return fmt.Errorf("connection with UUID %s not found", id)
 	}
 	delete(oc.connections, id)
 	atomic.AddInt64(&oc.stats.ActiveConnections, -1)
 	atomic.AddInt64(&oc.stats.PoolSize, -1)
-	oc.mu.Unlock()
 
 	// Закрываем соединение вне Lock
 	info.Mu.Lock()
@@ -91,6 +89,6 @@ func (oc *OpcConnector) CloseConnection(id uuid.UUID) error {
 
 	info.Cancel()
 
-	oc.logger.Info("Connection with UUID %s closed successfully", id)
+	oc.logger.Info(fmt.Sprintf("Connection with UUID %s closed successfully", id))
 	return nil
 }

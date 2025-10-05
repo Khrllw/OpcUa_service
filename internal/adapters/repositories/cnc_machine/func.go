@@ -36,6 +36,22 @@ func (r *CncMachineRepositoryImpl) GetCncMachineByEndpointURL(endpoint string) (
 	return cnc, nil
 }
 
+// GetCncMachineByID возвращает станок по ID
+func (r *CncMachineRepositoryImpl) GetCncMachineByID(id uint) (entities.CncMachine, error) {
+	op := "repo.CncMachine.GetCncMachineByID"
+
+	var cnc entities.CncMachine
+	err := r.db.Preload("CertificateConnection").Preload("PasswordConnection").Preload("AnonymousConnection").First(&cnc, "ID = ?", id).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return entities.CncMachine{}, errors.NewDBError(op, fmt.Errorf("%s: %w", op, errors.ErrNotFound))
+		}
+		return entities.CncMachine{}, errors.NewDBError(op, err)
+	}
+
+	return cnc, nil
+}
+
 // GetCncMachineByUUID возвращает станок по UUID
 func (r *CncMachineRepositoryImpl) GetCncMachineByUUID(id string) (entities.CncMachine, error) {
 	op := "repo.CncMachine.GetCncMachineByUUID"
