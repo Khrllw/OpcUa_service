@@ -30,12 +30,12 @@ const docTemplate = `{
                 "summary": "Запустить мониторинг станка",
                 "parameters": [
                     {
-                        "description": "UUID станка",
+                        "description": "ID станка и интервал опроса (мс)",
                         "name": "input",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.UUIDRequest"
+                            "$ref": "#/definitions/connection.StartPollingRequest"
                         }
                     }
                 ],
@@ -69,7 +69,7 @@ const docTemplate = `{
         },
         "/api/v1/polling/stop": {
             "get": {
-                "description": "Останавливает опрос OPC UA для конкретного станка по UUID",
+                "description": "Останавливает опрос OPC UA для конкретного станка по ID",
                 "produces": [
                     "application/json"
                 ],
@@ -84,7 +84,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.UUIDRequest"
+                            "$ref": "#/definitions/connection.IDRequest"
                         }
                     }
                 ],
@@ -154,7 +154,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.ConnectionRequest"
+                            "$ref": "#/definitions/connection.ConnectionRequest"
                         }
                     }
                 ],
@@ -162,7 +162,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Успешное подключение",
                         "schema": {
-                            "$ref": "#/definitions/swagger.UUIDResponse"
+                            "$ref": "#/definitions/swagger.IDResponse"
                         }
                     },
                     "400": {
@@ -186,7 +186,7 @@ const docTemplate = `{
                 }
             },
             "delete": {
-                "description": "Закрывает соединение OPC UA по UUID",
+                "description": "Закрывает соединение OPC UA по ID",
                 "consumes": [
                     "application/json"
                 ],
@@ -199,12 +199,12 @@ const docTemplate = `{
                 "summary": "Отключение сессии",
                 "parameters": [
                     {
-                        "description": "UUID для отключения",
+                        "description": "ID для отключения",
                         "name": "input",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.UUIDRequest"
+                            "$ref": "#/definitions/connection.IDRequest"
                         }
                     }
                 ],
@@ -238,7 +238,7 @@ const docTemplate = `{
         },
         "/connect/check": {
             "post": {
-                "description": "Проверяет состояние соединения OPC UA по UUID",
+                "description": "Проверяет состояние соединения OPC UA по ID",
                 "consumes": [
                     "application/json"
                 ],
@@ -251,12 +251,12 @@ const docTemplate = `{
                 "summary": "Проверка соединения",
                 "parameters": [
                     {
-                        "description": "UUID для проверки",
+                        "description": "ID для проверки",
                         "name": "input",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.CheckConnectionRequest"
+                            "$ref": "#/definitions/connection.CheckConnectionRequest"
                         }
                     }
                 ],
@@ -290,7 +290,136 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "internal_domain_models.ConnectionStatusEnum": {
+        "connection.CheckConnectionRequest": {
+            "type": "object",
+            "required": [
+                "ID"
+            ],
+            "properties": {
+                "ID": {
+                    "type": "integer"
+                }
+            }
+        },
+        "connection.ConnectionInfoResponse": {
+            "type": "object",
+            "properties": {
+                "UUID": {
+                    "type": "string"
+                },
+                "config": {
+                    "$ref": "#/definitions/models.ConnectionConfig"
+                },
+                "createdAt": {
+                    "type": "string",
+                    "example": "2025-08-22T12:00:00Z"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "lastUsed": {
+                    "type": "string",
+                    "example": "2025-08-22T12:05:00Z"
+                },
+                "machineID": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "sessionID": {
+                    "type": "string",
+                    "example": "ns=3;i=3093118269"
+                },
+                "status": {
+                    "$ref": "#/definitions/connection.ConnectionStatusEnum"
+                },
+                "useCount": {
+                    "type": "integer",
+                    "example": 1
+                }
+            }
+        },
+        "connection.ConnectionPoolResponse": {
+            "type": "object",
+            "properties": {
+                "connections": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/connection.ConnectionInfoResponse"
+                    }
+                },
+                "poolSize": {
+                    "type": "integer"
+                }
+            }
+        },
+        "connection.ConnectionRequest": {
+            "type": "object",
+            "required": [
+                "connectionType",
+                "manufacturer",
+                "model"
+            ],
+            "properties": {
+                "certificate": {
+                    "description": "для certificate",
+                    "type": "string",
+                    "example": "cert-abc-123"
+                },
+                "connectionType": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.ConnectionTypeEnum"
+                        }
+                    ],
+                    "example": "password"
+                },
+                "endpointURL": {
+                    "type": "string",
+                    "example": "opc.tcp://KHRLLW_-340595:4840/HEIDENHAIN/NC"
+                },
+                "key": {
+                    "type": "string",
+                    "example": "secret"
+                },
+                "manufacturer": {
+                    "type": "string",
+                    "example": "Heidenhain"
+                },
+                "mode": {
+                    "description": "OPC UA MessageSecurityMode",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/connection.MessageSecurityModeEnum"
+                        }
+                    ],
+                    "example": "SignAndEncrypt"
+                },
+                "model": {
+                    "type": "string",
+                    "example": "TNC640"
+                },
+                "password": {
+                    "description": "для password",
+                    "type": "string",
+                    "example": "secret"
+                },
+                "policy": {
+                    "description": "OPC UA SecurityPolicy",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/connection.SecurityPolicyEnum"
+                        }
+                    ],
+                    "example": "Basic256Sha256"
+                },
+                "username": {
+                    "description": "для password",
+                    "type": "string",
+                    "example": "client1"
+                }
+            }
+        },
+        "connection.ConnectionStatusEnum": {
             "type": "string",
             "enum": [
                 "OK",
@@ -338,14 +467,90 @@ const docTemplate = `{
                 "StatusAuthFailed"
             ]
         },
-        "models.CheckConnectionRequest": {
+        "connection.DisconnectResponse": {
             "type": "object",
             "required": [
-                "UUID"
+                "disconnected"
             ],
             "properties": {
-                "UUID": {
-                    "type": "string"
+                "disconnected": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "connection.IDRequest": {
+            "type": "object",
+            "required": [
+                "ID"
+            ],
+            "properties": {
+                "ID": {
+                    "type": "integer"
+                }
+            }
+        },
+        "connection.IDResponse": {
+            "type": "object",
+            "required": [
+                "ID"
+            ],
+            "properties": {
+                "ID": {
+                    "type": "integer"
+                }
+            }
+        },
+        "connection.MessageSecurityModeEnum": {
+            "type": "string",
+            "enum": [
+                "None",
+                "Sign",
+                "SignAndEncrypt"
+            ],
+            "x-enum-varnames": [
+                "ModeNone",
+                "ModeSign",
+                "ModeSignAndEncrypt"
+            ]
+        },
+        "connection.PollingResponse": {
+            "type": "object",
+            "required": [
+                "polled"
+            ],
+            "properties": {
+                "polled": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "connection.SecurityPolicyEnum": {
+            "type": "string",
+            "enum": [
+                "None",
+                "Basic128Rsa15",
+                "Basic256",
+                "Basic256Sha256"
+            ],
+            "x-enum-varnames": [
+                "PolicyNone",
+                "PolicyBasic128Rsa15",
+                "PolicyBasic256",
+                "PolicyBasic256Sha256"
+            ]
+        },
+        "connection.StartPollingRequest": {
+            "type": "object",
+            "required": [
+                "ID",
+                "timeout"
+            ],
+            "properties": {
+                "ID": {
+                    "type": "integer"
+                },
+                "timeout": {
+                    "type": "integer"
                 }
             }
         },
@@ -353,124 +558,6 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "config": {}
-            }
-        },
-        "models.ConnectionInfoResponse": {
-            "type": "object",
-            "properties": {
-                "UUID": {
-                    "type": "string"
-                },
-                "config": {
-                    "$ref": "#/definitions/models.ConnectionConfig"
-                },
-                "createdAt": {
-                    "type": "string",
-                    "example": "2025-08-22T12:00:00Z"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "lastUsed": {
-                    "type": "string",
-                    "example": "2025-08-22T12:05:00Z"
-                },
-                "sessionID": {
-                    "type": "string",
-                    "example": "ns=3;i=3093118269"
-                },
-                "status": {
-                    "$ref": "#/definitions/internal_domain_models.ConnectionStatusEnum"
-                },
-                "useCount": {
-                    "type": "integer",
-                    "example": 1
-                }
-            }
-        },
-        "models.ConnectionPoolResponse": {
-            "type": "object",
-            "properties": {
-                "connections": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.ConnectionInfoResponse"
-                    }
-                },
-                "poolSize": {
-                    "type": "integer"
-                }
-            }
-        },
-        "models.ConnectionRequest": {
-            "type": "object",
-            "required": [
-                "connectionType",
-                "manufacturer",
-                "model"
-            ],
-            "properties": {
-                "certificate": {
-                    "description": "для certificate",
-                    "type": "string",
-                    "example": "cert-abc-123"
-                },
-                "connectionType": {
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/models.ConnectionTypeEnum"
-                        }
-                    ],
-                    "example": "password"
-                },
-                "endpointURL": {
-                    "type": "string",
-                    "example": "opc.tcp://KHRLLW_-340595:4840/HEIDENHAIN/NC"
-                },
-                "key": {
-                    "type": "string",
-                    "example": "secret"
-                },
-                "manufacturer": {
-                    "type": "string",
-                    "example": "Heidenhain"
-                },
-                "mode": {
-                    "description": "OPC UA MessageSecurityMode",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/models.MessageSecurityModeEnum"
-                        }
-                    ],
-                    "example": "SignAndEncrypt"
-                },
-                "model": {
-                    "type": "string",
-                    "example": "TNC640"
-                },
-                "password": {
-                    "description": "для password",
-                    "type": "string",
-                    "example": "secret"
-                },
-                "policy": {
-                    "description": "OPC UA SecurityPolicy",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/models.SecurityPolicyEnum"
-                        }
-                    ],
-                    "example": "Basic256Sha256"
-                },
-                "timeout": {
-                    "type": "integer",
-                    "example": 30
-                },
-                "username": {
-                    "description": "для password",
-                    "type": "string",
-                    "example": "client1"
-                }
             }
         },
         "models.ConnectionTypeEnum": {
@@ -486,83 +573,11 @@ const docTemplate = `{
                 "ConnectionCertificate"
             ]
         },
-        "models.DisconnectResponse": {
-            "type": "object",
-            "required": [
-                "disconnected"
-            ],
-            "properties": {
-                "disconnected": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "models.MessageSecurityModeEnum": {
-            "type": "string",
-            "enum": [
-                "None",
-                "Sign",
-                "SignAndEncrypt"
-            ],
-            "x-enum-varnames": [
-                "ModeNone",
-                "ModeSign",
-                "ModeSignAndEncrypt"
-            ]
-        },
-        "models.PollingResponse": {
-            "type": "object",
-            "required": [
-                "polled"
-            ],
-            "properties": {
-                "polled": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "models.SecurityPolicyEnum": {
-            "type": "string",
-            "enum": [
-                "None",
-                "Basic128Rsa15",
-                "Basic256",
-                "Basic256Sha256"
-            ],
-            "x-enum-varnames": [
-                "PolicyNone",
-                "PolicyBasic128Rsa15",
-                "PolicyBasic256",
-                "PolicyBasic256Sha256"
-            ]
-        },
-        "models.UUIDRequest": {
-            "type": "object",
-            "required": [
-                "UUID"
-            ],
-            "properties": {
-                "UUID": {
-                    "type": "string"
-                }
-            }
-        },
-        "models.UUIDResponse": {
-            "type": "object",
-            "required": [
-                "UUID"
-            ],
-            "properties": {
-                "UUID": {
-                    "type": "string"
-                }
-            }
-        },
         "swagger.CheckConnectionResponse": {
             "type": "object",
             "properties": {
                 "data": {
-                    "$ref": "#/definitions/models.ConnectionInfoResponse"
+                    "$ref": "#/definitions/connection.ConnectionInfoResponse"
                 },
                 "message": {
                     "type": "string",
@@ -582,7 +597,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "data": {
-                    "$ref": "#/definitions/models.DisconnectResponse"
+                    "$ref": "#/definitions/connection.DisconnectResponse"
                 },
                 "message": {
                     "type": "string",
@@ -602,11 +617,31 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "data": {
-                    "$ref": "#/definitions/models.ConnectionPoolResponse"
+                    "$ref": "#/definitions/connection.ConnectionPoolResponse"
                 },
                 "message": {
                     "type": "string",
                     "example": "Successfully get connection pool"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "ok"
+                },
+                "type": {
+                    "type": "string",
+                    "example": "object"
+                }
+            }
+        },
+        "swagger.IDResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/connection.IDResponse"
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Successfully connected"
                 },
                 "status": {
                     "type": "string",
@@ -710,31 +745,11 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "data": {
-                    "$ref": "#/definitions/models.PollingResponse"
+                    "$ref": "#/definitions/connection.PollingResponse"
                 },
                 "message": {
                     "type": "string",
                     "example": "Polling started/stopped for machine"
-                },
-                "status": {
-                    "type": "string",
-                    "example": "ok"
-                },
-                "type": {
-                    "type": "string",
-                    "example": "object"
-                }
-            }
-        },
-        "swagger.UUIDResponse": {
-            "type": "object",
-            "properties": {
-                "data": {
-                    "$ref": "#/definitions/models.UUIDResponse"
-                },
-                "message": {
-                    "type": "string",
-                    "example": "Successfully connected"
                 },
                 "status": {
                     "type": "string",

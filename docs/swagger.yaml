@@ -1,6 +1,93 @@
 basePath: /api/v1
 definitions:
-  internal_domain_models.ConnectionStatusEnum:
+  connection.CheckConnectionRequest:
+    properties:
+      ID:
+        type: integer
+    required:
+    - ID
+    type: object
+  connection.ConnectionInfoResponse:
+    properties:
+      UUID:
+        type: string
+      config:
+        $ref: '#/definitions/models.ConnectionConfig'
+      createdAt:
+        example: "2025-08-22T12:00:00Z"
+        type: string
+      description:
+        type: string
+      lastUsed:
+        example: "2025-08-22T12:05:00Z"
+        type: string
+      machineID:
+        example: 1
+        type: integer
+      sessionID:
+        example: ns=3;i=3093118269
+        type: string
+      status:
+        $ref: '#/definitions/connection.ConnectionStatusEnum'
+      useCount:
+        example: 1
+        type: integer
+    type: object
+  connection.ConnectionPoolResponse:
+    properties:
+      connections:
+        items:
+          $ref: '#/definitions/connection.ConnectionInfoResponse'
+        type: array
+      poolSize:
+        type: integer
+    type: object
+  connection.ConnectionRequest:
+    properties:
+      certificate:
+        description: для certificate
+        example: cert-abc-123
+        type: string
+      connectionType:
+        allOf:
+        - $ref: '#/definitions/models.ConnectionTypeEnum'
+        example: password
+      endpointURL:
+        example: opc.tcp://KHRLLW_-340595:4840/HEIDENHAIN/NC
+        type: string
+      key:
+        example: secret
+        type: string
+      manufacturer:
+        example: Heidenhain
+        type: string
+      mode:
+        allOf:
+        - $ref: '#/definitions/connection.MessageSecurityModeEnum'
+        description: OPC UA MessageSecurityMode
+        example: SignAndEncrypt
+      model:
+        example: TNC640
+        type: string
+      password:
+        description: для password
+        example: secret
+        type: string
+      policy:
+        allOf:
+        - $ref: '#/definitions/connection.SecurityPolicyEnum'
+        description: OPC UA SecurityPolicy
+        example: Basic256Sha256
+      username:
+        description: для password
+        example: client1
+        type: string
+    required:
+    - connectionType
+    - manufacturer
+    - model
+    type: object
+  connection.ConnectionStatusEnum:
     enum:
     - OK
     - FAIL
@@ -43,115 +130,28 @@ definitions:
     - StatusError
     - StatusTimeout
     - StatusAuthFailed
-  models.CheckConnectionRequest:
-    properties:
-      UUID:
-        type: string
-    required:
-    - UUID
-    type: object
-  models.ConnectionConfig:
-    properties:
-      config: {}
-    type: object
-  models.ConnectionInfoResponse:
-    properties:
-      UUID:
-        type: string
-      config:
-        $ref: '#/definitions/models.ConnectionConfig'
-      createdAt:
-        example: "2025-08-22T12:00:00Z"
-        type: string
-      description:
-        type: string
-      lastUsed:
-        example: "2025-08-22T12:05:00Z"
-        type: string
-      sessionID:
-        example: ns=3;i=3093118269
-        type: string
-      status:
-        $ref: '#/definitions/internal_domain_models.ConnectionStatusEnum'
-      useCount:
-        example: 1
-        type: integer
-    type: object
-  models.ConnectionPoolResponse:
-    properties:
-      connections:
-        items:
-          $ref: '#/definitions/models.ConnectionInfoResponse'
-        type: array
-      poolSize:
-        type: integer
-    type: object
-  models.ConnectionRequest:
-    properties:
-      certificate:
-        description: для certificate
-        example: cert-abc-123
-        type: string
-      connectionType:
-        allOf:
-        - $ref: '#/definitions/models.ConnectionTypeEnum'
-        example: password
-      endpointURL:
-        example: opc.tcp://KHRLLW_-340595:4840/HEIDENHAIN/NC
-        type: string
-      key:
-        example: secret
-        type: string
-      manufacturer:
-        example: Heidenhain
-        type: string
-      mode:
-        allOf:
-        - $ref: '#/definitions/models.MessageSecurityModeEnum'
-        description: OPC UA MessageSecurityMode
-        example: SignAndEncrypt
-      model:
-        example: TNC640
-        type: string
-      password:
-        description: для password
-        example: secret
-        type: string
-      policy:
-        allOf:
-        - $ref: '#/definitions/models.SecurityPolicyEnum'
-        description: OPC UA SecurityPolicy
-        example: Basic256Sha256
-      timeout:
-        example: 30
-        type: integer
-      username:
-        description: для password
-        example: client1
-        type: string
-    required:
-    - connectionType
-    - manufacturer
-    - model
-    type: object
-  models.ConnectionTypeEnum:
-    enum:
-    - anonymous
-    - password
-    - certificate
-    type: string
-    x-enum-varnames:
-    - ConnectionAnonymous
-    - ConnectionPassword
-    - ConnectionCertificate
-  models.DisconnectResponse:
+  connection.DisconnectResponse:
     properties:
       disconnected:
         type: boolean
     required:
     - disconnected
     type: object
-  models.MessageSecurityModeEnum:
+  connection.IDRequest:
+    properties:
+      ID:
+        type: integer
+    required:
+    - ID
+    type: object
+  connection.IDResponse:
+    properties:
+      ID:
+        type: integer
+    required:
+    - ID
+    type: object
+  connection.MessageSecurityModeEnum:
     enum:
     - None
     - Sign
@@ -161,14 +161,14 @@ definitions:
     - ModeNone
     - ModeSign
     - ModeSignAndEncrypt
-  models.PollingResponse:
+  connection.PollingResponse:
     properties:
       polled:
         type: boolean
     required:
     - polled
     type: object
-  models.SecurityPolicyEnum:
+  connection.SecurityPolicyEnum:
     enum:
     - None
     - Basic128Rsa15
@@ -180,24 +180,34 @@ definitions:
     - PolicyBasic128Rsa15
     - PolicyBasic256
     - PolicyBasic256Sha256
-  models.UUIDRequest:
+  connection.StartPollingRequest:
     properties:
-      UUID:
-        type: string
+      ID:
+        type: integer
+      timeout:
+        type: integer
     required:
-    - UUID
+    - ID
+    - timeout
     type: object
-  models.UUIDResponse:
+  models.ConnectionConfig:
     properties:
-      UUID:
-        type: string
-    required:
-    - UUID
+      config: {}
     type: object
+  models.ConnectionTypeEnum:
+    enum:
+    - anonymous
+    - password
+    - certificate
+    type: string
+    x-enum-varnames:
+    - ConnectionAnonymous
+    - ConnectionPassword
+    - ConnectionCertificate
   swagger.CheckConnectionResponse:
     properties:
       data:
-        $ref: '#/definitions/models.ConnectionInfoResponse'
+        $ref: '#/definitions/connection.ConnectionInfoResponse'
       message:
         example: Successfully get connection info
         type: string
@@ -211,7 +221,7 @@ definitions:
   swagger.DisconnectResponse:
     properties:
       data:
-        $ref: '#/definitions/models.DisconnectResponse'
+        $ref: '#/definitions/connection.DisconnectResponse'
       message:
         example: Successfully disconnected
         type: string
@@ -225,9 +235,23 @@ definitions:
   swagger.GetConnectionPoolResponse:
     properties:
       data:
-        $ref: '#/definitions/models.ConnectionPoolResponse'
+        $ref: '#/definitions/connection.ConnectionPoolResponse'
       message:
         example: Successfully get connection pool
+        type: string
+      status:
+        example: ok
+        type: string
+      type:
+        example: object
+        type: string
+    type: object
+  swagger.IDResponse:
+    properties:
+      data:
+        $ref: '#/definitions/connection.IDResponse'
+      message:
+        example: Successfully connected
         type: string
       status:
         example: ok
@@ -299,23 +323,9 @@ definitions:
   swagger.PollingResponse:
     properties:
       data:
-        $ref: '#/definitions/models.PollingResponse'
+        $ref: '#/definitions/connection.PollingResponse'
       message:
         example: Polling started/stopped for machine
-        type: string
-      status:
-        example: ok
-        type: string
-      type:
-        example: object
-        type: string
-    type: object
-  swagger.UUIDResponse:
-    properties:
-      data:
-        $ref: '#/definitions/models.UUIDResponse'
-      message:
-        example: Successfully connected
         type: string
       status:
         example: ok
@@ -337,12 +347,12 @@ paths:
     get:
       description: Запускает опрос OPC UA для конкретного станка по UUID
       parameters:
-      - description: UUID станка
+      - description: ID станка и интервал опроса (мс)
         in: body
         name: input
         required: true
         schema:
-          $ref: '#/definitions/models.UUIDRequest'
+          $ref: '#/definitions/connection.StartPollingRequest'
       produces:
       - application/json
       responses:
@@ -367,14 +377,14 @@ paths:
       - Polling
   /api/v1/polling/stop:
     get:
-      description: Останавливает опрос OPC UA для конкретного станка по UUID
+      description: Останавливает опрос OPC UA для конкретного станка по ID
       parameters:
       - description: UUID станка
         in: body
         name: input
         required: true
         schema:
-          $ref: '#/definitions/models.UUIDRequest'
+          $ref: '#/definitions/connection.IDRequest'
       produces:
       - application/json
       responses:
@@ -401,14 +411,14 @@ paths:
     delete:
       consumes:
       - application/json
-      description: Закрывает соединение OPC UA по UUID
+      description: Закрывает соединение OPC UA по ID
       parameters:
-      - description: UUID для отключения
+      - description: ID для отключения
         in: body
         name: input
         required: true
         schema:
-          $ref: '#/definitions/models.UUIDRequest'
+          $ref: '#/definitions/connection.IDRequest'
       produces:
       - application/json
       responses:
@@ -454,14 +464,14 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/models.ConnectionRequest'
+          $ref: '#/definitions/connection.ConnectionRequest'
       produces:
       - application/json
       responses:
         "200":
           description: Успешное подключение
           schema:
-            $ref: '#/definitions/swagger.UUIDResponse'
+            $ref: '#/definitions/swagger.IDResponse'
         "400":
           description: Неверный формат запроса или некорректные данные
           schema:
@@ -481,14 +491,14 @@ paths:
     post:
       consumes:
       - application/json
-      description: Проверяет состояние соединения OPC UA по UUID
+      description: Проверяет состояние соединения OPC UA по ID
       parameters:
-      - description: UUID для проверки
+      - description: ID для проверки
         in: body
         name: input
         required: true
         schema:
-          $ref: '#/definitions/models.CheckConnectionRequest'
+          $ref: '#/definitions/connection.CheckConnectionRequest'
       produces:
       - application/json
       responses:

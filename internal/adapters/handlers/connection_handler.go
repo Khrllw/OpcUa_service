@@ -15,7 +15,7 @@ import (
 // @Tags Connection
 // @Accept json
 // @Produce json
-// @Param input body models.ConnectionRequest true "Данные для входа"
+// @Param input body connection.ConnectionRequest true "Данные для входа"
 // @Success 200 {object} swagger.IDResponse "Успешное подключение"
 // @Failure 400 {object} swagger.IncorrectFormatError "Неверный формат запроса или некорректные данные"
 // @Failure 401 {object} swagger.IncorrectDataError "Некорректные данные"
@@ -57,7 +57,7 @@ func (h *Handler) AddConnection(c *gin.Context) {
 // @Tags Connection
 // @Accept json
 // @Produce json
-// @Param input body models.IDRequest true "ID для отключения"
+// @Param input body connection.IDRequest true "ID для отключения"
 // @Success 200 {object} swagger.DisconnectResponse "Успешное отключение"
 // @Failure 400 {object} swagger.IncorrectFormatError "Неверный формат запроса"
 // @Failure 404 {object} swagger.NotFoundError "Данные не найдены"
@@ -89,7 +89,7 @@ func (h *Handler) CloseConnection(c *gin.Context) {
 // @Tags Connection
 // @Accept json
 // @Produce json
-// @Param input body models.CheckConnectionRequest true "ID для проверки"
+// @Param input body connection.CheckConnectionRequest true "ID для проверки"
 // @Success 200 {object} swagger.CheckConnectionResponse "Информация о подключении"
 // @Failure 400 {object} swagger.IncorrectFormatError "Неверный формат запроса"
 // @Failure 404 {object} swagger.NotFoundError "Данные не найдены"

@@ -11,7 +11,7 @@ import (
 // @Description Запускает опрос OPC UA для конкретного станка по UUID
 // @Tags Polling
 // @Produce json
-// @Param input body models.IDRequest true "ID станка"
+// @Param input body connection.StartPollingRequest true "ID станка и интервал опроса (мс)"
 // @Success 200 {object} swagger.PollingResponse "Мониторинг запущен"
 // @Failure 400 {object} swagger.IncorrectFormatError "Неверный формат запроса"
 // @Failure 404 {object} swagger.NotFoundError "Данные не найдены"
@@ -35,10 +35,10 @@ func (h *Handler) StartPollingByID(c *gin.Context) {
 
 // StopPollingByID останавливает мониторинг для одного станка
 // @Summary Остановить мониторинг станка
-// @Description Останавливает опрос OPC UA для конкретного станка по UUID
+// @Description Останавливает опрос OPC UA для конкретного станка по ID
 // @Tags Polling
 // @Produce json
-// @Param input body models.IDRequest true "UUID станка"
+// @Param input body connection.IDRequest true "UUID станка"
 // @Success 200 {object} swagger.PollingResponse "Мониторинг запущен"
 // @Failure 400 {object} swagger.IncorrectFormatError "Неверный формат запроса"
 // @Failure 404 {object} swagger.NotFoundError "Данные не найдены"
