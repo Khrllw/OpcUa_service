@@ -14,10 +14,10 @@ type OpcService struct {
 	interfaces.OpcCommunicatorService
 }
 
-func NewOpcService(producer interfaces.KafkaService, logger *logging.Logger) interfaces.OpcService {
+func NewOpcService(logger *logging.Logger, repo interfaces.Repository) interfaces.OpcService {
 	certManager := cert_manager.NewCertificateManager(logger)
 	opcConnector := opc_connector.NewOpcConnector(certManager, logger)
-	opcCommunicator := opc_communicator.NewOpcCommunicator(opcConnector, producer, logger)
+	opcCommunicator := opc_communicator.NewOpcCommunicator(opcConnector, logger, repo)
 
 	return OpcService{
 		certManager,

@@ -7,8 +7,10 @@ import (
 	"github.com/awcullen/opcua/client"
 	"github.com/awcullen/opcua/ua"
 	"github.com/google/uuid"
+	"opc_ua_service/internal/domain/entities"
 	"opc_ua_service/internal/domain/models"
 	connection_models "opc_ua_service/internal/domain/models/connection_types"
+	"opc_ua_service/pkg/errors"
 	"opc_ua_service/pkg/opc_custom"
 	"time"
 )
@@ -58,4 +60,6 @@ type OpcCommunicatorService interface {
 	GetControlProgramInfo(id uuid.UUID) ([]opc_custom.ProgramPositionDataType, error)
 	StartPollingForMachine(id uuid.UUID, timeout time.Duration) error
 	StopPollingForMachine(id uuid.UUID) error
+
+	CreatePollData(dataJson string) (*entities.PollData, *errors.AppError)
 }

@@ -9,6 +9,7 @@ type Repository interface {
 	PasswordConnectionRepository
 	AnonymousConnectionRepository
 	CertificateConnectionRepository
+	PollDataRepository
 }
 
 type CncMachineRepository interface {
@@ -41,4 +42,11 @@ type CertificateConnectionRepository interface {
 	GetCertificateConnectionByID(id uint) (entities.CertificateConnection, error)
 	UpdateCertificateConnection(id uint, updateMap map[string]interface{}) (uint, error)
 	DeleteCertificateConnection(id uint) error
+}
+
+type PollDataRepository interface {
+	CreatePollData(pd entities.PollData) (uint, error)
+	GetPollDataByID(id uint) (entities.PollData, error)
+	GetAllPollData() ([]entities.PollData, error)
+	DeletePollDataByID(id uint) error
 }

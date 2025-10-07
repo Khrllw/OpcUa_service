@@ -4,8 +4,9 @@ import (
 	"context"
 )
 
-// KafkaService определяет контракт для отправки данных во внешние системы
-type KafkaService interface {
-	Produce(ctx context.Context, key, value []byte) error
+// KafkaProducer определяет контракт для отправки данных во внешние системы
+type KafkaProducer interface {
+	Start(ctx context.Context)
+	Stop()
 	Close() error
 }

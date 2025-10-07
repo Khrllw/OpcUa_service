@@ -310,7 +310,7 @@ func (m *HeidenhainTNC640Data) ConvertNodeToMachineData(nodeID string, v any) er
 // ToResponse TODO: Все что закомменчено хз то это
 func (m *HeidenhainTNC640Data) ToResponse() cnc_machines.MachineDataResponse {
 	resp := cnc_machines.MachineDataResponse{
-		MachineId: getStringOrDefault(m.Machine.SerialNumber, ""),
+		MachineID: getStringOrDefault(m.Machine.SerialNumber, ""),
 		Timestamp: 0,
 		//IsEnabled:          false,
 		//IsEmergency:        false,

@@ -31,4 +31,10 @@ type PollingUsecase interface {
 
 	StartPollingMachine(req connection.StartPollingRequest) *errors.AppError
 	StopPollingMachine(machineID uint) *errors.AppError
+
+	GetAllPollData() ([]entities.PollData, *errors.AppError)
+	GetPollDataByID(recordID uint) (entities.PollData, *errors.AppError)
+	SavePollData(data entities.PollData) *errors.AppError
+
+	DeletePollDataByID(recordID uint) *errors.AppError
 }

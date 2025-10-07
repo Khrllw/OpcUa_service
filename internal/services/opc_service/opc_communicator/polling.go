@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"github.com/google/uuid"
+	"gorm.io/datatypes"
+	"opc_ua_service/internal/domain/entities"
 	_ "opc_ua_service/internal/domain/models"
 	"opc_ua_service/pkg/errors"
 	"time"
@@ -46,12 +48,21 @@ func (o *OpcCommunicator) StartPollingForMachine(id uuid.UUID, interval time.Dur
 						o.logger.Error("Error polling machine %s: %v", connInfo.SessionID, err)
 						continue
 					}
-					dataResponse := data.ToResponse()
+					//dataResponse := data.ToResponse()
 					dataJSON := data.ToJSON()
-					err = o.producer.Produce(context.Background(), []byte(dataResponse.MachineId), []byte(dataJSON))
-					if err != nil {
-						o.logger.Error("Failed to send data to Kafka", "machineId", connInfo.SessionID, "error", err)
+
+					_, eerr := o.CreatePollData(dataJSON)
+					if eerr != nil {
+						o.logger.Error("Failed to send Kafka data to db", "machineId", connInfo.SessionID, "error", err)
 					}
+					/*
+						err = o.producer.Produce(context.Background(), []byte(dataResponse.MachineID), []byte(dataJSON))
+						if err != nil {
+							o.logger.Error("Failed to send data to Kafka", "machineId", connInfo.SessionID, "error", err)
+						}
+
+					*/
+
 				} else {
 					o.logger.Error("Connection failed", "UUID", id)
 					reconnectedUUID, err := o.connector.Reconnect(id, connInfo)
@@ -87,4 +98,23 @@ func (o *OpcCommunicator) StopPollingForMachine(id uuid.UUID) error {
 	cancel()
 	o.logger.Info(fmt.Sprintf("Polling manually stopped for machine %s", id))
 	return nil
+}
+
+func (o *OpcCommunicator) CreatePollData(dataJson string) (*entities.PollData, *errors.AppError) {
+	pollData := &entities.PollData{
+		Timestamp: time.Now(),
+		Payload:   datatypes.JSON(dataJson),
+	}
+
+	createdPollDataID, err := o.repo.CreatePollData(*pollData)
+	if err != nil {
+		return nil, errors.NewAppError(errors.InternalServerErrorCode, "failed to create poll data record", err, false)
+	}
+
+	createdPollData, err := o.repo.GetPollDataByID(createdPollDataID)
+	if err != nil {
+		return nil, errors.NewAppError(errors.InternalServerErrorCode, "failed to check poll data", err, false)
+	}
+
+	return &createdPollData, nil
 }

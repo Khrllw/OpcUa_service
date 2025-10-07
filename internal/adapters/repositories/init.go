@@ -3,6 +3,7 @@ package repositories
 import (
 	"fmt"
 	"log"
+	"opc_ua_service/internal/adapters/repositories/poll_data"
 	"os"
 	"time"
 
@@ -25,6 +26,7 @@ type Repository struct {
 	interfaces.CertificateConnectionRepository
 	interfaces.PasswordConnectionRepository
 	interfaces.AnonymousConnectionRepository
+	interfaces.PollDataRepository
 }
 
 func NewRepository(cfg *config.Config, appLogger *logging.Logger) (interfaces.Repository, error) {
@@ -50,6 +52,7 @@ func NewRepository(cfg *config.Config, appLogger *logging.Logger) (interfaces.Re
 		CertificateConnectionRepository: certificate_connection.NewCertificateConnectionRepository(appDb),
 		PasswordConnectionRepository:    password_connection.NewPasswordConnectionRepository(appDb),
 		AnonymousConnectionRepository:   anonymous_connection.NewAnonymousConnectionRepository(appDb),
+		PollDataRepository:              poll_data.NewPollDataRepository(appDb),
 	}, nil
 }
 
@@ -103,6 +106,7 @@ func connectToAppDatabase(cfg *config.Config) (*gorm.DB, error) {
 func autoMigrate(db *gorm.DB) error {
 
 	models := []interface{}{
+		&entities.PollData{},
 		&entities.CncMachine{},
 		&entities.CertificateConnection{},
 		&entities.PasswordConnection{},

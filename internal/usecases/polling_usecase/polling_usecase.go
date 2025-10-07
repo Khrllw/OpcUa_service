@@ -14,17 +14,19 @@ import (
 )
 
 type PollingUsecase struct {
-	OpcService  interfaces.OpcService
-	poolingCtx  context.Context
-	cancelFunc  context.CancelFunc
-	latestData  []interfaces.MachineData
-	MachineRepo interfaces.CncMachineRepository
+	OpcService   interfaces.OpcService
+	poolingCtx   context.Context
+	cancelFunc   context.CancelFunc
+	latestData   []interfaces.MachineData
+	MachineRepo  interfaces.CncMachineRepository
+	PollDataRepo interfaces.PollDataRepository
 }
 
-func NewPollingUsecase(s interfaces.OpcService, r interfaces.CncMachineRepository) *PollingUsecase {
+func NewPollingUsecase(s interfaces.OpcService, cnc_r interfaces.CncMachineRepository, poll_r interfaces.PollDataRepository) *PollingUsecase {
 	return &PollingUsecase{
-		OpcService:  s,
-		MachineRepo: r,
+		OpcService:   s,
+		MachineRepo:  cnc_r,
+		PollDataRepo: poll_r,
 	}
 }
 

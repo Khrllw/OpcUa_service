@@ -18,7 +18,7 @@ func NewUsecases(r interfaces.Repository, s interfaces.OpcService, conf *config.
 
 	return &UseCases{
 		connection_usecase.NewConnectionUsecase(s, r, r, r, r),
-		polling_usecase.NewPollingUsecase(s, r),
+		polling_usecase.NewPollingUsecase(s, r, r),
 	}
 
 }

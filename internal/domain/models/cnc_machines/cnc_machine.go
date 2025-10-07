@@ -20,7 +20,7 @@ type ProgramResponse struct {
 type SpindleInfosResponse struct{}
 
 type MachineDataResponse struct {
-	MachineId string `json:"machine_id"`
+	MachineID string `json:"machine_id"`
 	Timestamp int64  `json:"timestamp"`
 
 	IsEnabled bool `json:"is_enabled"`

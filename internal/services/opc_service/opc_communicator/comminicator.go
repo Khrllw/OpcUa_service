@@ -16,18 +16,18 @@ import (
 type OpcCommunicator struct {
 	connector     interfaces.OpcConnectorService
 	pollCancelMap map[uuid.UUID]context.CancelFunc
-	producer      interfaces.KafkaService
 	mu            sync.Mutex
 	logger        *logging.Logger
+	repo          interfaces.PollDataRepository
 }
 
 // NewOpcCommunicator создает новый экземпляр OpcCommunicator
-func NewOpcCommunicator(connector interfaces.OpcConnectorService, producer interfaces.KafkaService, logger *logging.Logger) interfaces.OpcCommunicatorService {
+func NewOpcCommunicator(connector interfaces.OpcConnectorService, logger *logging.Logger, repo interfaces.PollDataRepository) interfaces.OpcCommunicatorService {
 	return &OpcCommunicator{
 		connector:     connector,
 		pollCancelMap: make(map[uuid.UUID]context.CancelFunc),
-		producer:      producer,
 		logger:        logger.WithPrefix("COMMUNICATOR"),
+		repo:          repo,
 	}
 }
 

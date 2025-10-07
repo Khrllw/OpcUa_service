@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"errors"
+	"fmt"
 	"go.uber.org/fx"
 	"log"
 	"net/http"
@@ -29,7 +30,7 @@ func New() *fx.App {
 		ServiceModule,
 		UsecaseModule,
 		HttpServerModule,
-		fx.Invoke(InvokeRestoreConnections),
+		fx.Invoke(InvokeRestoreConnections, InvokeKafkaProducer),
 	)
 }
 
@@ -78,15 +79,26 @@ func InvokeHttpServer(lc fx.Lifecycle, h http.Handler) {
 }
 
 // InvokeGracefulShutdown обеспечивает корректное завершение работы сервисов
-func InvokeGracefulShutdown(lc fx.Lifecycle, connector interfaces.OpcService, producer interfaces.KafkaService) {
+func InvokeGracefulShutdown(lc fx.Lifecycle, connector interfaces.OpcService, producer interfaces.KafkaProducer) {
 	lc.Append(fx.Hook{
 		OnStop: func(ctx context.Context) error {
 			log.Println("Gracefully stopping all services...")
+
+			var allErrs []error
+
+			// 1. Закрываем OPC соединения
 			connector.CloseAll()
 
+			// 2. Закрываем Kafka продюсер
 			if err := producer.Close(); err != nil {
-				log.Printf("Error closing Kafka producer: %v", err)
-				return err
+				allErrs = append(allErrs, err)
+				log.Println("Error closing Kafka producer", "error", err)
+			} else {
+				log.Println("Kafka producer closed")
+			}
+
+			if len(allErrs) > 0 {
+				return fmt.Errorf("shutdown errors: %v", allErrs)
 			}
 
 			log.Println("All services have been stopped successfully.")
@@ -133,6 +145,19 @@ func intToUint(c int) uint {
 		panic([2]any{"a negative number", c})
 	}
 	return uint(c)
+}
+
+func InvokeKafkaProducer(lc fx.Lifecycle, producer interfaces.KafkaProducer) {
+	lc.Append(fx.Hook{
+		OnStart: func(ctx context.Context) error {
+			producer.Start(ctx)
+			return nil
+		},
+		OnStop: func(ctx context.Context) error {
+			producer.Stop()
+			return nil
+		},
+	})
 }
 
 // InvokeRestoreConnections восстанавливает подключения и опросы при старте приложения.

@@ -15,8 +15,10 @@ type ServerConfig struct {
 }
 
 type KafkaConfig struct {
-	KafkaBrokers []string `json:"kafka_brokers"`
-	KafkaTopic   string   `json:"kafka_topic"`
+	KafkaBrokers    []string `json:"kafka_brokers"`
+	KafkaTopic      string   `json:"kafka_topic"`
+	KafkaTimeout    int      `json:"kafka_timeout"`
+	KafkaRetryDelay int      `json:"kafka_retry_delay"`
 }
 
 type Config struct {
@@ -94,7 +96,9 @@ func LoadConfig() (*Config, error) {
 				KafkaBrokers: []string{
 					getEnv("KAFKA_BROKER", "localhost:9092"),
 				},
-				KafkaTopic: getEnv("KAFKA_TOPIC", "opc-data"),
+				KafkaTopic:      getEnv("KAFKA_TOPIC", "opc-data"),
+				KafkaTimeout:    getEnvAsInt("KAFKA_TIMEOUT", 10),
+				KafkaRetryDelay: getEnvAsInt("KAFKA_RETRY_DELAY", 10),
 			},
 			GinMode: getEnv("GIN_MODE", "release"),
 		},
