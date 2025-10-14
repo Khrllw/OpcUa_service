@@ -8,5 +8,4 @@ import (
 type KafkaProducer interface {
 	Start(ctx context.Context)
 	Stop()
-	Close() error
 }

@@ -90,12 +90,8 @@ func InvokeGracefulShutdown(lc fx.Lifecycle, connector interfaces.OpcService, pr
 			connector.CloseAll()
 
 			// 2. Закрываем Kafka продюсер
-			if err := producer.Close(); err != nil {
-				allErrs = append(allErrs, err)
-				log.Println("Error closing Kafka producer", "error", err)
-			} else {
-				log.Println("Kafka producer closed")
-			}
+			//producer.Stop()
+			//log.Println("Kafka producer closed")
 
 			if len(allErrs) > 0 {
 				return fmt.Errorf("shutdown errors: %v", allErrs)

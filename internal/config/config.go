@@ -19,6 +19,7 @@ type KafkaConfig struct {
 	KafkaTopic      string   `json:"kafka_topic"`
 	KafkaTimeout    int      `json:"kafka_timeout"`
 	KafkaRetryDelay int      `json:"kafka_retry_delay"`
+	KafkaBatchSize  int      `json:"kafka_batch_size"`
 }
 
 type Config struct {
@@ -99,6 +100,7 @@ func LoadConfig() (*Config, error) {
 				KafkaTopic:      getEnv("KAFKA_TOPIC", "opc-data"),
 				KafkaTimeout:    getEnvAsInt("KAFKA_TIMEOUT", 10),
 				KafkaRetryDelay: getEnvAsInt("KAFKA_RETRY_DELAY", 10),
+				KafkaBatchSize:  getEnvAsInt("KAFKA_BATCH_SIZE", 100),
 			},
 			GinMode: getEnv("GIN_MODE", "release"),
 		},

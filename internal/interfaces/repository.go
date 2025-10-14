@@ -49,4 +49,9 @@ type PollDataRepository interface {
 	GetPollDataByID(id uint) (entities.PollData, error)
 	GetAllPollData() ([]entities.PollData, error)
 	DeletePollDataByID(id uint) error
+
+	GetPollDataBatch(batchSize int) ([]entities.PollData, error)
+	MarkPollDataProcessed(ids []uint) error
+	GetProcessedPollDataIDs(batchSize int) ([]uint, error)
+	DeletePollDataBatch(ids []uint) error
 }

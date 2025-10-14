@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/google/uuid"
 	"net/http"
+	"opc_ua_service/internal/domain/entities"
 	"opc_ua_service/internal/domain/models"
 	"opc_ua_service/internal/domain/models/connection"
 	connection_models "opc_ua_service/internal/domain/models/connection_types"
@@ -114,6 +115,46 @@ func (u *PollingUsecase) StopPollingMachine(machineID uint) *errors.AppError {
 	_, err = u.MachineRepo.UpdateCncMachine(machine.UUID, updateMap)
 	if err != nil {
 		return errors.NewAppError(http.StatusInternalServerError, "failed to update machine record", err, false)
+	}
+	return nil
+}
+
+// GetPollDataBatch получает batch необработанных данных
+func (u *PollingUsecase) GetPollDataBatch(batchSize int) ([]entities.PollData, *errors.AppError) {
+	data, err := u.PollDataRepo.GetPollDataBatch(batchSize)
+	if err != nil {
+		return nil, errors.NewAppError(http.StatusInternalServerError, "failed to get poll data batch", err, false)
+	}
+	return data, nil
+}
+
+// MarkPollDataProcessed помечает batch данных как обработанные
+func (u *PollingUsecase) MarkPollDataProcessed(ids []uint) *errors.AppError {
+	if len(ids) == 0 {
+		return nil
+	}
+	if err := u.PollDataRepo.MarkPollDataProcessed(ids); err != nil {
+		return errors.NewAppError(http.StatusInternalServerError, "failed to mark poll data as processed", err, false)
+	}
+	return nil
+}
+
+// GetProcessedPollDataIDs получает batch ID обработанных данных для удаления
+func (u *PollingUsecase) GetProcessedPollDataIDs(batchSize int) ([]uint, *errors.AppError) {
+	ids, err := u.PollDataRepo.GetProcessedPollDataIDs(batchSize)
+	if err != nil {
+		return nil, errors.NewAppError(http.StatusInternalServerError, "failed to get processed poll data IDs", err, false)
+	}
+	return ids, nil
+}
+
+// DeletePollDataBatch удаляет batch данных по ID
+func (u *PollingUsecase) DeletePollDataBatch(ids []uint) *errors.AppError {
+	if len(ids) == 0 {
+		return nil
+	}
+	if err := u.PollDataRepo.DeletePollDataBatch(ids); err != nil {
+		return errors.NewAppError(http.StatusInternalServerError, "failed to delete poll data batch", err, false)
 	}
 	return nil
 }

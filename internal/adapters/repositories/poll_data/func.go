@@ -59,3 +59,70 @@ func (r PollDataRepositoryImpl) DeletePollDataByID(id uint) error {
 
 	return nil
 }
+
+// GetPollDataBatch получает batch необработанных записей
+func (r *PollDataRepositoryImpl) GetPollDataBatch(batchSize int) ([]entities.PollData, error) {
+	op := "repo.PollDataRepository.GetPollDataBatch"
+
+	var records []entities.PollData
+	if err := r.db.
+		Where("processed = ?", false).
+		Order("id ASC").
+		Limit(batchSize).
+		Find(&records).Error; err != nil {
+		return nil, errors.NewDBError(op, err)
+	}
+
+	return records, nil
+}
+
+// MarkPollDataProcessed помечает записи как обработанные
+func (r *PollDataRepositoryImpl) MarkPollDataProcessed(ids []uint) error {
+	op := "repo.PollDataRepository.MarkPollDataProcessed"
+
+	result := r.db.Model(&entities.PollData{}).
+		Where("ID IN ? AND processed = ?", ids, false).
+		Update("processed", true)
+	if result.Error != nil {
+		return errors.NewDBError(op, result.Error)
+	}
+	if result.RowsAffected == 0 {
+		return errors.NewDBError(op, fmt.Errorf("%s: %w", op, errors.ErrEmptyAction))
+	}
+
+	return nil
+}
+
+// GetProcessedPollDataIDs получает batch обработанных записей для удаления
+func (r *PollDataRepositoryImpl) GetProcessedPollDataIDs(batchSize int) ([]uint, error) {
+	op := "repo.PollDataRepository.GetProcessedPollDataIDs"
+
+	var ids []uint
+	if err := r.db.
+		Model(&entities.PollData{}).
+		Where("processed = ?", true).
+		Order("id ASC").
+		Limit(batchSize).
+		Pluck("id", &ids).Error; err != nil {
+		return nil, errors.NewDBError(op, err)
+	}
+
+	return ids, nil
+}
+
+// DeletePollDataBatch удаляет записи по batch ID
+func (r *PollDataRepositoryImpl) DeletePollDataBatch(ids []uint) error {
+	op := "repo.PollDataRepository.DeletePollDataBatch"
+
+	result := r.db.
+		Where("id IN ?", ids).
+		Delete(&entities.PollData{})
+	if result.Error != nil {
+		return errors.NewDBError(op, result.Error)
+	}
+	if result.RowsAffected == 0 {
+		return errors.NewDBError(op, fmt.Errorf("%s: %w", op, errors.ErrEmptyAction))
+	}
+
+	return nil
+}

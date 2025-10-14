@@ -37,4 +37,16 @@ type PollingUsecase interface {
 	SavePollData(data entities.PollData) *errors.AppError
 
 	DeletePollDataByID(recordID uint) *errors.AppError
+
+	// Получение batch необработанных данных
+	GetPollDataBatch(batchSize int) ([]entities.PollData, *errors.AppError)
+
+	// Пометка batch данных как обработанных
+	MarkPollDataProcessed(ids []uint) *errors.AppError
+
+	// Получение batch ID обработанных данных для удаления
+	GetProcessedPollDataIDs(batchSize int) ([]uint, *errors.AppError)
+
+	// Удаление batch данных по ID
+	DeletePollDataBatch(ids []uint) *errors.AppError
 }
